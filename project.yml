@@ -1,0 +1,83 @@
+name: ScreenStash
+options:
+  bundleIdPrefix: com.screenstash
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+  groupSortPosition: top
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    DEVELOPMENT_TEAM: W4TS7E96Q9
+    CODE_SIGN_STYLE: Automatic
+    CURRENT_PROJECT_VERSION: 1
+    MARKETING_VERSION: 1.0
+targets:
+  ScreenStash:
+    type: application
+    platform: iOS
+    sources:
+      - path: ScreenStash
+    dependencies:
+      - target: ScreenStashShareExtension
+        embed: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.screenstash.app
+        PRODUCT_NAME: ScreenStash
+        TARGETED_DEVICE_FAMILY: "1"
+        SUPPORTS_MACCATALYST: NO
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: ScreenStash/Resources/Info.plist
+        CODE_SIGN_ENTITLEMENTS: ScreenStash/Resources/ScreenStash.entitlements
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+    scheme:
+      gatherCoverageData: true
+      testTargets:
+        - ScreenStashTests
+        - ScreenStashUITests
+  ScreenStashShareExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: ScreenStashShareExtension
+      - path: ScreenStash/Shared/SharedImportQueue.swift
+      - path: ScreenStash/Shared/SharedCategoryCatalog.swift
+      - path: ScreenStash/Models/ScreenshotCategory.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.screenstash.app.share
+        PRODUCT_NAME: ScreenStashShareExtension
+        TARGETED_DEVICE_FAMILY: "1"
+        SUPPORTS_MACCATALYST: NO
+        SKIP_INSTALL: YES
+        APPLICATION_EXTENSION_API_ONLY: YES
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: ScreenStashShareExtension/Info.plist
+        CODE_SIGN_ENTITLEMENTS: ScreenStashShareExtension/ScreenStashShareExtension.entitlements
+  ScreenStashTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: ScreenStashTests
+    dependencies:
+      - target: ScreenStash
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.screenstash.tests
+        GENERATE_INFOPLIST_FILE: YES
+  ScreenStashUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: ScreenStashUITests
+    dependencies:
+      - target: ScreenStash
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.screenstash.uitests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: ScreenStash
