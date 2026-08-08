@@ -40,14 +40,21 @@ struct AboutView: View {
             }
 
             Section("Support") {
-                if let supportEmailURL {
+                if let supportWebsiteURL = AppLinks.supportWebsiteURL {
+                    Link(destination: supportWebsiteURL) {
+                        Label("Support Website", systemImage: "safari")
+                    }
+                    .accessibilityHint("Opens the ScreenStash support website")
+                }
+
+                if let supportEmailURL = AppLinks.supportEmailURL(subject: "ScreenStash Support") {
                     Link(destination: supportEmailURL) {
                         Label("Email Support", systemImage: "envelope")
                     }
                     .accessibilityHint("Opens a new email to mjddevtools@gmail.com")
                 }
 
-                LabeledContent("Email", value: "mjddevtools@gmail.com")
+                LabeledContent("Email", value: AppLinks.supportEmailAddress)
                     .textSelection(.enabled)
             }
         }
@@ -63,7 +70,4 @@ struct AboutView: View {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "1"
     }
 
-    private var supportEmailURL: URL? {
-        URL(string: "mailto:mjddevtools@gmail.com?subject=ScreenStash%20Support")
-    }
 }

@@ -1,5 +1,25 @@
 import Foundation
 
+enum AppLinks {
+    static let supportEmailAddress = "mjddevtools@gmail.com"
+
+    static let supportWebsiteURL = URL(
+        string: "https://mjdriscoll94.github.io/screenstash/"
+    )
+
+    static let privacyPolicyURL = URL(
+        string: "https://mjdriscoll94.github.io/screenstash/privacy.html"
+    )
+
+    static func supportEmailURL(subject: String) -> URL? {
+        var components = URLComponents()
+        components.scheme = "mailto"
+        components.path = supportEmailAddress
+        components.queryItems = [URLQueryItem(name: "subject", value: subject)]
+        return components.url
+    }
+}
+
 enum ScreenshotLayoutMode: String, CaseIterable, Identifiable {
     case grid
     case list

@@ -35,7 +35,14 @@ struct PrivacyView: View {
                     .font(.footnote)
                     .foregroundStyle(.secondary)
 
-                if let supportEmailURL {
+                if let privacyPolicyURL = AppLinks.privacyPolicyURL {
+                    Link(destination: privacyPolicyURL) {
+                        Label("Full Privacy Policy", systemImage: "safari")
+                    }
+                    .accessibilityHint("Opens the ScreenStash privacy policy website")
+                }
+
+                if let supportEmailURL = AppLinks.supportEmailURL(subject: "ScreenStash Privacy") {
                     Link(destination: supportEmailURL) {
                         Label("Privacy Questions", systemImage: "envelope")
                     }
@@ -45,10 +52,6 @@ struct PrivacyView: View {
         }
         .navigationTitle("Privacy")
         .navigationBarTitleDisplayMode(.inline)
-    }
-
-    private var supportEmailURL: URL? {
-        URL(string: "mailto:mjddevtools@gmail.com?subject=ScreenStash%20Privacy")
     }
 }
 
