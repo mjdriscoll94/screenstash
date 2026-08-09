@@ -1,6 +1,6 @@
-# ScreenStash
+# ScreenStash: Screenshot Filing
 
-ScreenStash is a private, local-first iPhone inbox for screenshots. It imports only images the user selects, recognizes English text on-device, and helps turn screenshots into searchable, actionable items.
+ScreenStash: Screenshot Filing is a private, local-first iPhone inbox for screenshots. It imports only images the user selects, recognizes English text on-device, and helps turn screenshots into searchable, actionable items.
 
 ## Requirements
 

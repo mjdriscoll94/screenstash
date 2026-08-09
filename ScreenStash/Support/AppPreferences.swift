@@ -1,5 +1,10 @@
 import Foundation
 
+enum AppBrand {
+    static let shortName = "ScreenStash"
+    static let storeName = "ScreenStash: Screenshot Filing"
+}
+
 enum AppLinks {
     static let supportEmailAddress = "mjddevtools@gmail.com"
 

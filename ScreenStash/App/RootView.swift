@@ -82,8 +82,9 @@ private struct StartupLoadingView: View {
                     .accessibilityHidden(true)
 
                 VStack(spacing: 10) {
-                    Text("ScreenStash")
+                    Text(AppBrand.storeName)
                         .font(.title2.weight(.semibold))
+                        .multilineTextAlignment(.center)
 
                     ProgressView("Preparing your screenshots…")
                         .font(.subheadline)
