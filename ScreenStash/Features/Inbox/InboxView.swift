@@ -30,11 +30,15 @@ struct InboxView: View {
 
         Group {
             if displayedItems.isEmpty {
-                EmptyStateView(
-                    title: emptyTitle,
-                    message: emptyMessage,
-                    systemImage: viewModel.filter.symbolName
-                )
+                if showsGettingStartedEmptyState {
+                    gettingStartedEmptyState
+                } else {
+                    EmptyStateView(
+                        title: emptyTitle,
+                        message: emptyMessage,
+                        systemImage: viewModel.filter.symbolName
+                    )
+                }
             } else if layout == .grid {
                 grid(items: displayedItems)
             } else {
@@ -307,12 +311,46 @@ struct InboxView: View {
         return viewModel.filter == .all ? "Your Inbox Is Clear" : "Nothing Here"
     }
 
+    private var showsGettingStartedEmptyState: Bool {
+        viewModel.filter == .all
+            && viewModel.query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    private var gettingStartedEmptyState: some View {
+        ContentUnavailableView {
+            Label("Your Inbox Is Clear", systemImage: "tray")
+        } description: {
+            Text("Import screenshots you already have, or learn how to send new screenshots directly to ScreenStash.")
+        } actions: {
+            VStack(spacing: 12) {
+                PhotosPicker(
+                    selection: $pickerItems,
+                    maxSelectionCount: 50,
+                    matching: .images
+                ) {
+                    Label("Import Existing Screenshots", systemImage: "photo.on.rectangle.angled")
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(importViewModel.isImporting)
+                .accessibilityIdentifier("inbox.empty.importExisting")
+
+                NavigationLink {
+                    HowToUseScreenStashView()
+                } label: {
+                    Label("Learn How to Share New Screenshots", systemImage: "square.and.arrow.up")
+                }
+                .buttonStyle(.bordered)
+                .accessibilityIdentifier("inbox.empty.shareGuide")
+            }
+        }
+    }
+
     private var emptyMessage: String {
         if !viewModel.query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             return "Try another search term or clear the current filter."
         }
         return viewModel.filter == .all
-            ? "Tap the add button to import screenshots that need your attention."
+            ? "Import existing screenshots or share new ones directly to ScreenStash."
             : "No unresolved screenshots match the \(viewModel.filter.title) filter."
     }
 

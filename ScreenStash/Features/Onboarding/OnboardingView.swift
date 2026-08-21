@@ -2,36 +2,36 @@ import SwiftUI
 
 struct OnboardingView: View {
     fileprivate enum Page: Int, CaseIterable, Identifiable {
-        case share
-        case add
-        case deleteOriginal
+        case saveNew
+        case importExisting
+        case actAndClear
 
         var id: Int { rawValue }
 
         var title: String {
             switch self {
-            case .share: "Share Before Saving"
-            case .add: "Choose Where It Belongs"
-            case .deleteOriginal: "Delete the Original"
+            case .saveNew: "Save New Screenshots"
+            case .importExisting: "Import Existing Screenshots"
+            case .actAndClear: "Find It, Act, Clear It Out"
             }
         }
 
         var message: String {
             switch self {
-            case .share:
-                "After taking a screenshot, tap Share and choose ScreenStash. If it is hidden, tap More once to enable it."
-            case .add:
-                "Pick a category, then tap Add to ScreenStash. Wait for the share action to finish before continuing."
-            case .deleteOriginal:
-                "Back in the screenshot preview, tap X and choose Delete Screenshot. Your searchable copy is already safe in ScreenStash."
+            case .saveNew:
+                "After taking a screenshot, tap Share and choose ScreenStash. Add a title and category before saving it."
+            case .importExisting:
+                "Already have screenshots in Photos? Open the Inbox, tap the plus button, and choose one or more images to import."
+            case .actAndClear:
+                "Search recognized text, add reminders, and resolve finished items. After confirming the ScreenStash copy is safe, delete the original from the screenshot preview or Photos."
             }
         }
 
         var guideImage: ScreenshotGuideImage {
             switch self {
-            case .share: .share
-            case .add: .add
-            case .deleteOriginal: .deleteOriginal
+            case .saveNew: .share
+            case .importExisting: .importExisting
+            case .actAndClear: .deleteOriginal
             }
         }
     }
@@ -128,13 +128,12 @@ private struct OnboardingPageView: View {
 
 fileprivate enum ScreenshotGuideImage {
     case share
-    case add
+    case importExisting
     case deleteOriginal
 
     var aspectRatio: CGFloat {
         switch self {
-        case .share, .deleteOriginal: 1.34
-        case .add: 0.98
+        case .share, .importExisting, .deleteOriginal: 1.34
         }
     }
 
@@ -142,8 +141,8 @@ fileprivate enum ScreenshotGuideImage {
         switch self {
         case .share:
             "Screenshot preview with the Share button highlighted in the upper-right corner."
-        case .add:
-            "ScreenStash share screen with Category first and Add to ScreenStash second."
+        case .importExisting:
+            "ScreenStash Inbox with the centered plus button highlighted for importing existing screenshots."
         case .deleteOriginal:
             "Screenshot preview with the X button highlighted in the upper-left corner."
         }
@@ -152,7 +151,7 @@ fileprivate enum ScreenshotGuideImage {
     var accessibilityIdentifier: String {
         switch self {
         case .share: "onboarding.guide.share"
-        case .add: "onboarding.guide.add"
+        case .importExisting: "onboarding.guide.importExisting"
         case .deleteOriginal: "onboarding.guide.deleteOriginal"
         }
     }
@@ -185,12 +184,9 @@ private struct ScreenshotGuideImageView: View {
                 .resizable()
                 .scaledToFill()
                 .frame(width: size.width, height: size.height, alignment: .top)
-        case .add:
-            Image("TutorialAddToScreenStash")
-                .resizable()
-                .scaledToFill()
-                .frame(width: size.width, height: size.height, alignment: .top)
-                .offset(y: -size.width * 0.94)
+        case .importExisting:
+            ExistingScreenshotImportGuide()
+                .frame(width: size.width, height: size.height)
         }
     }
 
@@ -198,28 +194,24 @@ private struct ScreenshotGuideImageView: View {
     private func overlay(in size: CGSize) -> some View {
         switch kind {
         case .share:
-            targetRing(at: CGPoint(x: size.width * 0.76, y: size.height * 0.28))
+            targetRing(at: editorPoint(ScreenshotEditorGeometry.shareButtonCenter, in: size))
             GuideCallout(text: "Tap Share", arrow: "arrow.up.right")
                 .position(x: size.width * 0.57, y: size.height * 0.60)
         case .deleteOriginal:
-            targetRing(at: CGPoint(x: size.width * 0.09, y: size.height * 0.28))
+            targetRing(at: editorPoint(ScreenshotEditorGeometry.closeButtonCenter, in: size))
             GuideCallout(text: "Tap X", arrow: "arrow.up.left", arrowFirst: true)
                 .position(x: size.width * 0.30, y: size.height * 0.60)
-        case .add:
-            RoundedRectangle(cornerRadius: 14)
-                .stroke(Color.accentColor, lineWidth: 4)
-                .frame(width: size.width * 0.88, height: 56)
-                .position(x: size.width * 0.5, y: size.height * 0.39)
-            GuideCallout(text: "1  Choose a category", arrow: "arrow.down")
-                .position(x: size.width * 0.5, y: size.height * 0.19)
-
-            RoundedRectangle(cornerRadius: 14)
-                .stroke(Color.accentColor, lineWidth: 4)
-                .frame(width: size.width * 0.88, height: 56)
-                .position(x: size.width * 0.5, y: size.height * 0.66)
-            GuideCallout(text: "2  Tap Add", arrow: "arrow.up")
-                .position(x: size.width * 0.5, y: size.height * 0.86)
+        case .importExisting:
+            EmptyView()
         }
+    }
+
+    /// The tutorial image is rendered width-first and aligned to its top edge.
+    /// Mapping source-image pixels through that same scale keeps each ring on
+    /// the exact control center instead of relying on percentages of the crop.
+    private func editorPoint(_ sourcePoint: CGPoint, in size: CGSize) -> CGPoint {
+        let scale = size.width / ScreenshotEditorGeometry.sourceWidth
+        return CGPoint(x: sourcePoint.x * scale, y: sourcePoint.y * scale)
     }
 
     private func targetRing(at point: CGPoint) -> some View {
@@ -230,6 +222,78 @@ private struct ScreenshotGuideImageView: View {
                 Circle().stroke(Color.accentColor, lineWidth: 4)
             }
             .position(point)
+    }
+}
+
+private enum ScreenshotEditorGeometry {
+    static let sourceWidth: CGFloat = 1_206
+    static let closeButtonCenter = CGPoint(x: 113, y: 246)
+    static let shareButtonCenter = CGPoint(x: 916, y: 246)
+}
+
+private struct ExistingScreenshotImportGuide: View {
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack(alignment: .center, spacing: 12) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Inbox")
+                        .font(.title2.bold())
+                    Text("Bring in screenshots you already saved")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer(minLength: 8)
+
+                ZStack {
+                    Circle()
+                        .fill(Color.accentColor.opacity(0.16))
+                        .frame(width: 62, height: 62)
+                    Circle()
+                        .stroke(Color.accentColor, lineWidth: 4)
+                        .frame(width: 62, height: 62)
+                    Circle()
+                        .fill(.background)
+                        .frame(width: 46, height: 46)
+                    Image(systemName: "plus")
+                        .font(.title2.weight(.semibold))
+                        .foregroundStyle(.primary)
+                }
+                .accessibilityHidden(true)
+            }
+            .padding(.horizontal, 18)
+            .padding(.top, 18)
+
+            Spacer(minLength: 10)
+
+            HStack(spacing: 12) {
+                importThumbnail(symbol: "photo", color: .blue)
+                importThumbnail(symbol: "doc.text.image", color: .purple)
+                importThumbnail(symbol: "map", color: .green)
+            }
+
+            Spacer(minLength: 10)
+
+            GuideCallout(text: "Tap + to choose from Photos", arrow: "arrow.up")
+                .padding(.bottom, 16)
+        }
+        .background(Color(uiColor: .systemBackground))
+    }
+
+    private func importThumbnail(symbol: String, color: Color) -> some View {
+        RoundedRectangle(cornerRadius: 10, style: .continuous)
+            .fill(color.opacity(0.12))
+            .frame(width: 72, height: 82)
+            .overlay {
+                Image(systemName: symbol)
+                    .font(.title2)
+                    .foregroundStyle(color)
+            }
+            .overlay {
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .stroke(color.opacity(0.18), lineWidth: 1)
+            }
+            .accessibilityHidden(true)
     }
 }
 
