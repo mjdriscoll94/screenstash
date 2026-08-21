@@ -23,6 +23,13 @@ struct InboxView: View {
         ScreenshotLayoutMode(rawValue: layoutRawValue) ?? .grid
     }
 
+    private var gridColumns: [GridItem] {
+        [
+            GridItem(.flexible(minimum: 0, maximum: .infinity), spacing: 12, alignment: .top),
+            GridItem(.flexible(minimum: 0, maximum: .infinity), spacing: 12, alignment: .top)
+        ]
+    }
+
     var body: some View {
         @Bindable var viewModel = viewModel
         @Bindable var importViewModel = importViewModel
@@ -116,7 +123,7 @@ struct InboxView: View {
     private func grid(items: [ScreenshotItem]) -> some View {
         ScrollView {
             LazyVGrid(
-                columns: [GridItem(.adaptive(minimum: 150), spacing: 12)],
+                columns: gridColumns,
                 spacing: 12
             ) {
                 ForEach(items) { item in
@@ -129,6 +136,8 @@ struct InboxView: View {
                                 }
                             }
                     }
+                    .frame(maxWidth: .infinity, alignment: .topLeading)
+                    .clipped()
                 }
             }
             .padding()

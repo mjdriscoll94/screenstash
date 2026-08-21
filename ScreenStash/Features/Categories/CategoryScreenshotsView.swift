@@ -114,7 +114,10 @@ private struct ScreenshotCollectionView: View {
     private var grid: some View {
         ScrollView {
             LazyVGrid(
-                columns: [GridItem(.adaptive(minimum: 150), spacing: 12)],
+                columns: [
+                    GridItem(.flexible(minimum: 0, maximum: .infinity), spacing: 12, alignment: .top),
+                    GridItem(.flexible(minimum: 0, maximum: .infinity), spacing: 12, alignment: .top)
+                ],
                 spacing: 12
             ) {
                 ForEach(items) { item in
@@ -127,6 +130,8 @@ private struct ScreenshotCollectionView: View {
                                 }
                             }
                     }
+                    .frame(maxWidth: .infinity, alignment: .topLeading)
+                    .clipped()
                 }
             }
             .padding()

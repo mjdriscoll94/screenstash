@@ -7,6 +7,7 @@ struct ScreenshotCard: View {
         VStack(alignment: .leading, spacing: ScreenStashTheme.compactSpacing) {
             ScreenshotThumbnail(data: item.thumbnailData)
                 .aspectRatio(0.78, contentMode: .fit)
+                .frame(maxWidth: .infinity)
                 .clipShape(RoundedRectangle(cornerRadius: ScreenStashTheme.imageCornerRadius))
 
             Text(item.displayTitle)
@@ -15,6 +16,8 @@ struct ScreenshotCard: View {
 
             if let category = item.category {
                 CategoryBadge(name: category.name, symbolName: category.symbolName)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .clipped()
             }
 
             HStack(spacing: ScreenStashTheme.compactSpacing) {
@@ -33,10 +36,10 @@ struct ScreenshotCard: View {
             .foregroundStyle(.secondary)
         }
         .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(ScreenStashTheme.cardBackground, in: RoundedRectangle(cornerRadius: ScreenStashTheme.cardCornerRadius))
         .accessibilityElement(children: .combine)
         .accessibilityLabel(item.displayTitle)
         .accessibilityValue(item.category?.name ?? "Unsorted")
     }
 }
-

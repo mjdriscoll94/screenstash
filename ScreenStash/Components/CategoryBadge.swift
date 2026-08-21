@@ -7,6 +7,7 @@ struct CategoryBadge: View {
     var body: some View {
         Label(name, systemImage: symbolName)
             .font(.caption.weight(.medium))
+            .lineLimit(1)
             .foregroundStyle(.secondary)
             .padding(.horizontal, 9)
             .padding(.vertical, 5)
@@ -20,4 +21,3 @@ struct CategoryBadge: View {
     CategoryBadge(name: "Read Later", symbolName: "book.closed")
         .padding()
 }
-
