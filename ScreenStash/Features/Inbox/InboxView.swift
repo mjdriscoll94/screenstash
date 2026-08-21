@@ -23,13 +23,6 @@ struct InboxView: View {
         ScreenshotLayoutMode(rawValue: layoutRawValue) ?? .grid
     }
 
-    private var gridColumns: [GridItem] {
-        [
-            GridItem(.flexible(minimum: 0, maximum: .infinity), spacing: 12, alignment: .top),
-            GridItem(.flexible(minimum: 0, maximum: .infinity), spacing: 12, alignment: .top)
-        ]
-    }
-
     var body: some View {
         @Bindable var viewModel = viewModel
         @Bindable var importViewModel = importViewModel
@@ -121,26 +114,34 @@ struct InboxView: View {
     }
 
     private func grid(items: [ScreenshotItem]) -> some View {
-        ScrollView {
-            LazyVGrid(
-                columns: gridColumns,
-                spacing: 12
-            ) {
-                ForEach(items) { item in
-                    itemDestination(item) {
-                        ScreenshotCard(item: item)
-                            .overlay(alignment: .topTrailing) {
-                                if viewModel.isSelecting {
-                                    selectionIndicator(isSelected: viewModel.selectedIDs.contains(item.id))
-                                        .padding(8)
+        GeometryReader { geometry in
+            let columnWidth = ScreenshotGridLayout.columnWidth(for: geometry.size.width)
+
+            ScrollView {
+                LazyVGrid(
+                    columns: ScreenshotGridLayout.columns(columnWidth: columnWidth),
+                    spacing: ScreenshotGridLayout.spacing
+                ) {
+                    ForEach(items) { item in
+                        itemDestination(item) {
+                            ScreenshotCard(item: item)
+                                .frame(width: columnWidth, alignment: .topLeading)
+                                .clipped()
+                                .overlay(alignment: .topTrailing) {
+                                    if viewModel.isSelecting {
+                                        selectionIndicator(isSelected: viewModel.selectedIDs.contains(item.id))
+                                            .padding(8)
+                                    }
                                 }
-                            }
+                        }
+                        .frame(width: columnWidth, alignment: .topLeading)
+                        .clipped()
+                        .accessibilityIdentifier("screenshot.card.\(item.id.uuidString.lowercased())")
                     }
-                    .frame(maxWidth: .infinity, alignment: .topLeading)
-                    .clipped()
                 }
+                .padding(.horizontal, ScreenshotGridLayout.horizontalPadding)
+                .padding(.vertical, ScreenshotGridLayout.horizontalPadding)
             }
-            .padding()
         }
     }
 

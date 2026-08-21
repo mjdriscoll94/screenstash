@@ -112,29 +112,34 @@ private struct ScreenshotCollectionView: View {
     }
 
     private var grid: some View {
-        ScrollView {
-            LazyVGrid(
-                columns: [
-                    GridItem(.flexible(minimum: 0, maximum: .infinity), spacing: 12, alignment: .top),
-                    GridItem(.flexible(minimum: 0, maximum: .infinity), spacing: 12, alignment: .top)
-                ],
-                spacing: 12
-            ) {
-                ForEach(items) { item in
-                    itemDestination(item) {
-                        ScreenshotCard(item: item)
-                            .overlay(alignment: .topTrailing) {
-                                if isSelecting {
-                                    selectionIndicator(for: item)
-                                        .padding(8)
+        GeometryReader { geometry in
+            let columnWidth = ScreenshotGridLayout.columnWidth(for: geometry.size.width)
+
+            ScrollView {
+                LazyVGrid(
+                    columns: ScreenshotGridLayout.columns(columnWidth: columnWidth),
+                    spacing: ScreenshotGridLayout.spacing
+                ) {
+                    ForEach(items) { item in
+                        itemDestination(item) {
+                            ScreenshotCard(item: item)
+                                .frame(width: columnWidth, alignment: .topLeading)
+                                .clipped()
+                                .overlay(alignment: .topTrailing) {
+                                    if isSelecting {
+                                        selectionIndicator(for: item)
+                                            .padding(8)
+                                    }
                                 }
-                            }
+                        }
+                        .frame(width: columnWidth, alignment: .topLeading)
+                        .clipped()
+                        .accessibilityIdentifier("screenshot.card.\(item.id.uuidString.lowercased())")
                     }
-                    .frame(maxWidth: .infinity, alignment: .topLeading)
-                    .clipped()
                 }
+                .padding(.horizontal, ScreenshotGridLayout.horizontalPadding)
+                .padding(.vertical, ScreenshotGridLayout.horizontalPadding)
             }
-            .padding()
         }
     }
 

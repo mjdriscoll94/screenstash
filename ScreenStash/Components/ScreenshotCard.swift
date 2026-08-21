@@ -1,13 +1,39 @@
 import SwiftUI
 
+enum ScreenshotGridLayout {
+    static let horizontalPadding: CGFloat = 16
+    static let spacing: CGFloat = 12
+
+    /// Returns an exact two-column width so unusually wide image content can
+    /// never participate in grid sizing or extend beyond the safe container.
+    static func columnWidth(for containerWidth: CGFloat) -> CGFloat {
+        let contentWidth = containerWidth - (horizontalPadding * 2) - spacing
+        return max(1, contentWidth / 2)
+    }
+
+    static func columns(columnWidth: CGFloat) -> [GridItem] {
+        [
+            GridItem(.fixed(columnWidth), spacing: spacing, alignment: .top),
+            GridItem(.fixed(columnWidth), spacing: 0, alignment: .top)
+        ]
+    }
+}
+
 struct ScreenshotCard: View {
     let item: ScreenshotItem
 
     var body: some View {
         VStack(alignment: .leading, spacing: ScreenStashTheme.compactSpacing) {
-            ScreenshotThumbnail(data: item.thumbnailData)
+            // Use a layout-neutral viewport so the source image's aspect ratio
+            // can never widen its grid column. The image fills and crops only
+            // inside this consistent portrait preview frame.
+            Color.clear
                 .aspectRatio(0.78, contentMode: .fit)
                 .frame(maxWidth: .infinity)
+                .overlay {
+                    ScreenshotThumbnail(data: item.thumbnailData)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
                 .clipShape(RoundedRectangle(cornerRadius: ScreenStashTheme.imageCornerRadius))
 
             Text(item.displayTitle)
@@ -41,5 +67,6 @@ struct ScreenshotCard: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel(item.displayTitle)
         .accessibilityValue(item.category?.name ?? "Unsorted")
+        .accessibilityIdentifier("screenshot.card.\(item.id.uuidString.lowercased())")
     }
 }
