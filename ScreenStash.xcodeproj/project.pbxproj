@@ -894,6 +894,7 @@
 				DEVELOPMENT_TEAM = W4TS7E96Q9;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ScreenStash/Resources/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "ScreenStash: Screenshot Filing";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1034,6 +1035,7 @@
 				DEVELOPMENT_TEAM = W4TS7E96Q9;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ScreenStash/Resources/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "ScreenStash: Screenshot Filing";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
