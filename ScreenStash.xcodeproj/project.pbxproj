@@ -840,6 +840,7 @@
 				DEVELOPMENT_TEAM = W4TS7E96Q9;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ScreenStashShareExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Add to FrameFile";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -898,7 +899,7 @@
 				DEVELOPMENT_TEAM = W4TS7E96Q9;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ScreenStash/Resources/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "ScreenStash: Screenshot Filing";
+				INFOPLIST_KEY_CFBundleDisplayName = FrameFile;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -981,6 +982,7 @@
 				DEVELOPMENT_TEAM = W4TS7E96Q9;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ScreenStashShareExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Add to FrameFile";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1039,7 +1041,7 @@
 				DEVELOPMENT_TEAM = W4TS7E96Q9;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ScreenStash/Resources/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "ScreenStash: Screenshot Filing";
+				INFOPLIST_KEY_CFBundleDisplayName = FrameFile;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

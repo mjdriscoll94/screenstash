@@ -29,7 +29,7 @@ private struct DatabaseUnavailableView: View {
 
     var body: some View {
         ContentUnavailableView {
-            Label("ScreenStash Couldn't Open", systemImage: "externaldrive.badge.exclamationmark")
+            Label("FrameFile Couldn't Open", systemImage: "externaldrive.badge.exclamationmark")
         } description: {
             Text("Your screenshots have not been changed. Close and reopen the app, then try again.")
         }
@@ -37,4 +37,3 @@ private struct DatabaseUnavailableView: View {
         .accessibilityHint(error.localizedDescription)
     }
 }
-

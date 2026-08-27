@@ -48,7 +48,7 @@ struct ZoomableImageView: View {
                 } else {
                     ErrorStateView(
                         title: "Image Unavailable",
-                        message: "ScreenStash couldn't display this screenshot."
+                        message: "FrameFile couldn't display this screenshot."
                     )
                 }
 
@@ -115,4 +115,3 @@ struct ZoomableImageView: View {
         settledOffset = .zero
     }
 }
-

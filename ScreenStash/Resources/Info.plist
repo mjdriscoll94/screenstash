@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>ScreenStash</string>
+	<string>FrameFile</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -41,7 +41,7 @@
 				<string>com.apple.package</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>ScreenStash Export</string>
+			<string>FrameFile Export</string>
 			<key>UTTypeIdentifier</key>
 			<string>com.screenstash.export</string>
 			<key>UTTypeTagSpecification</key>

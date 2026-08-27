@@ -5,7 +5,7 @@ struct PrivacyView: View {
         List {
             PrivacyRow(
                 title: "Stored on your device",
-                message: "Imported screenshots stay in local app storage. Share-sheet imports are staged only in ScreenStash's private App Group.",
+                message: "Imported screenshots stay in local app storage. Share-sheet imports are staged only in FrameFile's private App Group.",
                 symbol: "iphone"
             )
             PrivacyRow(
@@ -15,7 +15,7 @@ struct PrivacyView: View {
             )
             PrivacyRow(
                 title: "No account",
-                message: "ScreenStash does not require registration, a subscription, or a backend service.",
+                message: "FrameFile does not require registration, a subscription, or a backend service.",
                 symbol: "person.crop.circle.badge.checkmark"
             )
             PrivacyRow(
@@ -26,12 +26,12 @@ struct PrivacyView: View {
 
             PrivacyRow(
                 title: "You control retention",
-                message: "Delete individual screenshots at any time, or use Delete All App Data in Settings. Deleting ScreenStash data does not delete the original from Photos.",
+                message: "Delete individual screenshots at any time, or use Delete All App Data in Settings. Deleting FrameFile data does not delete the original from Photos.",
                 symbol: "trash"
             )
 
             Section("More Information") {
-                Text("Your device backups are controlled by your iOS and iCloud settings. ScreenStash itself does not upload screenshot content.")
+                Text("Your device backups are controlled by your iOS and iCloud settings. FrameFile itself does not upload screenshot content.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
 
@@ -39,10 +39,10 @@ struct PrivacyView: View {
                     Link(destination: privacyPolicyURL) {
                         Label("Full Privacy Policy", systemImage: "safari")
                     }
-                    .accessibilityHint("Opens the ScreenStash privacy policy website")
+                    .accessibilityHint("Opens the FrameFile privacy policy website")
                 }
 
-                if let supportEmailURL = AppLinks.supportEmailURL(subject: "ScreenStash Privacy") {
+                if let supportEmailURL = AppLinks.supportEmailURL(subject: "FrameFile Privacy") {
                     Link(destination: supportEmailURL) {
                         Label("Privacy Questions", systemImage: "envelope")
                     }

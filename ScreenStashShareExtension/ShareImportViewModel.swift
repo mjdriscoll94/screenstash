@@ -63,7 +63,7 @@ final class ShareImportViewModel {
             .filter { $0.hasItemConformingToTypeIdentifier(UTType.image.identifier) } ?? []
 
         guard !providers.isEmpty else {
-            phase = .failed("Choose one or more screenshots to share with ScreenStash.")
+            phase = .failed("Choose one or more screenshots to share with FrameFile.")
             return
         }
 
@@ -80,7 +80,7 @@ final class ShareImportViewModel {
 
         screenshots = loaded
         phase = loaded.isEmpty
-            ? .failed("ScreenStash couldn't read the selected screenshot.")
+            ? .failed("FrameFile couldn't read the selected screenshot.")
             : .ready
     }
 

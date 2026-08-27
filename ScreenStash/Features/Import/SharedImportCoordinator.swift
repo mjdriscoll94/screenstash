@@ -92,7 +92,7 @@ struct SharedImportNotice: Identifiable {
     var detail: String?
 
     var title: String {
-        failedCount == 0 ? "Added to ScreenStash" : "Shared Import Finished"
+        failedCount == 0 ? "Added to FrameFile" : "Shared Import Finished"
     }
 
     var message: String {
@@ -102,6 +102,6 @@ struct SharedImportNotice: Identifiable {
                 ? "Your screenshot is ready in the Inbox."
                 : "\(importedCount) screenshots are ready in the Inbox."
         }
-        return "Imported \(importedCount). \(failedCount) could not be imported. ScreenStash kept their staged data and will retry any recoverable items."
+        return "Imported \(importedCount). \(failedCount) could not be imported. FrameFile kept their staged data and will retry any recoverable items."
     }
 }

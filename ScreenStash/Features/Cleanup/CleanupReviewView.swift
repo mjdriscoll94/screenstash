@@ -150,7 +150,7 @@ struct CleanupReviewView: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("This removes the ScreenStash copy. The original in Photos is not affected.")
+            Text("This removes the FrameFile copy. The original in Photos is not affected.")
         }
         .alert("Couldn't Complete Action", isPresented: errorBinding) {
             Button("OK", role: .cancel) { viewModel.errorMessage = nil }

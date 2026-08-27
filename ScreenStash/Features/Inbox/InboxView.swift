@@ -97,7 +97,7 @@ struct InboxView: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("This removes the selected screenshots from ScreenStash. The originals in Photos are not affected.")
+            Text("This removes the selected screenshots from FrameFile. The originals in Photos are not affected.")
         }
         .onChange(of: pickerItems) { _, newItems in
             guard !newItems.isEmpty else { return }
@@ -330,7 +330,7 @@ struct InboxView: View {
         ContentUnavailableView {
             Label("Your Inbox Is Clear", systemImage: "tray")
         } description: {
-            Text("Import screenshots you already have, or learn how to send new screenshots directly to ScreenStash.")
+            Text("Import screenshots you already have, or learn how to send new screenshots directly to FrameFile.")
         } actions: {
             VStack(spacing: 12) {
                 PhotosPicker(
@@ -360,7 +360,7 @@ struct InboxView: View {
             return "Try another search term or clear the current filter."
         }
         return viewModel.filter == .all
-            ? "Import existing screenshots or share new ones directly to ScreenStash."
+            ? "Import existing screenshots or share new ones directly to FrameFile."
             : "No unresolved screenshots match the \(viewModel.filter.title) filter."
     }
 

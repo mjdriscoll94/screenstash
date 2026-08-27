@@ -24,7 +24,7 @@ struct ShareImportView: View {
                     }
                 }
             }
-            .navigationTitle("Add to ScreenStash")
+            .navigationTitle("Add to FrameFile")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -97,7 +97,7 @@ struct ShareImportView: View {
                         if viewModel.phase == .saving {
                             ProgressView()
                         } else {
-                            Label("Add to ScreenStash", systemImage: "tray.and.arrow.down")
+                            Label("Add to FrameFile", systemImage: "tray.and.arrow.down")
                         }
                         Spacer()
                     }
@@ -109,7 +109,7 @@ struct ShareImportView: View {
                         : "Enter a title before saving"
                 )
             } footer: {
-                Text("ScreenStash will privately finish image processing and on-device text recognition for search when you open the app.")
+                Text("FrameFile will privately finish image processing and on-device text recognition for search when you open the app.")
             }
         }
     }

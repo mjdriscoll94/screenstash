@@ -1,6 +1,6 @@
 import Foundation
 
-/// Stable identifiers for the categories bundled with ScreenStash.
+/// Stable identifiers for the categories bundled with FrameFile.
 ///
 /// Screenshot items relate to `ScreenshotCategoryRecord` rather than persisting
 /// this enum directly. That lets a later release add user-created categories
@@ -49,4 +49,3 @@ enum ScreenshotCategory: String, CaseIterable, Codable, Identifiable, Sendable {
         }
     }
 }
-

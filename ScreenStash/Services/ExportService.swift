@@ -75,7 +75,7 @@ struct ExportService: DataExporting {
         let manifest = ScreenStashExportManifest(
             formatVersion: 1,
             exportedAt: .now,
-            application: "ScreenStash",
+            application: "FrameFile",
             screenshots: records
         )
         let encoder = JSONEncoder()

@@ -94,7 +94,7 @@ private struct StartupLoadingView: View {
             .padding(32)
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("ScreenStash is loading")
+        .accessibilityLabel("FrameFile is loading")
         .accessibilityIdentifier("startup.loading")
     }
 }

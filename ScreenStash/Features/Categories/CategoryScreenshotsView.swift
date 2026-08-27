@@ -94,7 +94,7 @@ private struct ScreenshotCollectionView: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("This removes the selected screenshots from ScreenStash. The originals in Photos are not affected.")
+            Text("This removes the selected screenshots from FrameFile. The originals in Photos are not affected.")
         }
         .alert("Couldn't Delete Screenshots", isPresented: errorBinding) {
             Button("OK", role: .cancel) { errorMessage = nil }

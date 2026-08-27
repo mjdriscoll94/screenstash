@@ -35,7 +35,7 @@ struct AboutView: View {
                     PrivacyView()
                 }
 
-                NavigationLink("How to Use ScreenStash") {
+                NavigationLink("How to Use FrameFile") {
                     HowToUseScreenStashView()
                 }
             }
@@ -45,10 +45,10 @@ struct AboutView: View {
                     Link(destination: supportWebsiteURL) {
                         Label("Support Website", systemImage: "safari")
                     }
-                    .accessibilityHint("Opens the ScreenStash support website")
+                    .accessibilityHint("Opens the FrameFile support website")
                 }
 
-                if let supportEmailURL = AppLinks.supportEmailURL(subject: "ScreenStash Support") {
+                if let supportEmailURL = AppLinks.supportEmailURL(subject: "FrameFile Support") {
                     Link(destination: supportEmailURL) {
                         Label("Email Support", systemImage: "envelope")
                     }

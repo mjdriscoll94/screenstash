@@ -19,11 +19,11 @@ struct OnboardingView: View {
         var message: String {
             switch self {
             case .saveNew:
-                "After taking a screenshot, tap Share and choose ScreenStash. Add a title and category before saving it."
+                "After taking a screenshot, tap Share and choose FrameFile. Add a title and category before saving it."
             case .importExisting:
                 "Already have screenshots in Photos? Open the Inbox, tap the plus button, and choose one or more images to import."
             case .actAndClear:
-                "Search recognized text, add reminders, and resolve finished items. After confirming the ScreenStash copy is safe, delete the original from the screenshot preview or Photos."
+                "Search recognized text, add reminders, and resolve finished items. After confirming the FrameFile copy is safe, delete the original from the screenshot preview or Photos."
             }
         }
 
@@ -62,7 +62,7 @@ struct OnboardingView: View {
                     Button("Skip", action: onCompletion)
                         .padding(.horizontal)
                         .padding(.top, 8)
-                        .accessibilityHint("Closes the ScreenStash guide")
+                        .accessibilityHint("Closes the FrameFile guide")
                 }
             }
 
@@ -142,7 +142,7 @@ fileprivate enum ScreenshotGuideImage {
         case .share:
             "Screenshot preview with the Share button highlighted in the upper-right corner."
         case .importExisting:
-            "ScreenStash Inbox with the centered plus button highlighted for importing existing screenshots."
+            "FrameFile Inbox with the centered plus button highlighted for importing existing screenshots."
         case .deleteOriginal:
             "Screenshot preview with the X button highlighted in the upper-left corner."
         }
@@ -328,7 +328,7 @@ struct HowToUseScreenStashView: View {
         OnboardingView(showsSkip: false) {
             dismiss()
         }
-        .navigationTitle("How to Use ScreenStash")
+        .navigationTitle("How to Use FrameFile")
         .navigationBarTitleDisplayMode(.inline)
     }
 }

@@ -70,11 +70,11 @@ struct SettingsView: View {
                 NavigationLink {
                     HowToUseScreenStashView()
                 } label: {
-                    Label("How to Use ScreenStash", systemImage: "questionmark.circle")
+                    Label("How to Use FrameFile", systemImage: "questionmark.circle")
                 }
 
                 Label("Share screenshots directly", systemImage: "square.and.arrow.up")
-                Text("After taking a screenshot, open the share sheet and choose ScreenStash. If it is hidden, tap More to enable it.")
+                Text("After taking a screenshot, open the share sheet and choose FrameFile. If it is hidden, tap More to enable it.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
@@ -100,7 +100,7 @@ struct SettingsView: View {
 
             Section("Notifications") {
                 LabeledContent("Permission", value: notificationStatusDescription)
-                Text("ScreenStash asks for notification permission only when you create your first reminder. It does not send automatic cleanup alerts.")
+                Text("FrameFile asks for notification permission only when you create your first reminder. It does not send automatic cleanup alerts.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
 
@@ -117,7 +117,7 @@ struct SettingsView: View {
                 Button {
                     prepareExport()
                 } label: {
-                    Label("Export ScreenStash Data", systemImage: "square.and.arrow.up")
+                    Label("Export FrameFile Data", systemImage: "square.and.arrow.up")
                 }
                 .disabled(allItems.isEmpty)
 
@@ -134,7 +134,7 @@ struct SettingsView: View {
                 .accessibilityIdentifier("settings.deleteAllData")
             }
 
-            Section("ScreenStash") {
+            Section("FrameFile") {
                 NavigationLink("Privacy") {
                     PrivacyView()
                 }
@@ -155,14 +155,14 @@ struct SettingsView: View {
             isPresented: $isExporting,
             document: exportDocument,
             contentType: .screenStashExport,
-            defaultFilename: "ScreenStash Export.screenstash"
+            defaultFilename: "FrameFile Export.screenstash"
         ) { result in
             if case let .failure(error) = result {
                 errorMessage = error.localizedDescription
             }
         }
         .confirmationDialog(
-            "Delete all ScreenStash data?",
+            "Delete all FrameFile data?",
             isPresented: $showDeleteConfirmation,
             titleVisibility: .visible
         ) {
@@ -182,7 +182,7 @@ struct SettingsView: View {
             if isDeleting {
                 ZStack {
                     Color.black.opacity(0.12).ignoresSafeArea()
-                    LoadingOverlay(message: "Deleting ScreenStash data…")
+                    LoadingOverlay(message: "Deleting FrameFile data…")
                 }
             }
         }
@@ -243,7 +243,7 @@ struct SettingsView: View {
                 catalog: dependencies.sharedCategoryCatalog
             )
         } catch where errorMessage == nil {
-            errorMessage = "App data was reset, but the share-sheet category list could not be refreshed. Reopen ScreenStash to retry."
+            errorMessage = "App data was reset, but the share-sheet category list could not be refreshed. Reopen FrameFile to retry."
         } catch {}
 
         isDeleting = false

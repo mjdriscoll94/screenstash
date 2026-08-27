@@ -47,7 +47,7 @@ actor NotificationService: NotificationScheduling {
         content.title = title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             ? "Screenshot reminder"
             : title
-        content.body = "You saved this in ScreenStash."
+        content.body = "You saved this in FrameFile."
         content.sound = .default
         content.userInfo = ["screenshotID": itemID.uuidString]
 

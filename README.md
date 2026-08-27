@@ -1,6 +1,6 @@
-# ScreenStash: Screenshot Filing
+# FrameFile
 
-ScreenStash: Screenshot Filing is a private, local-first iPhone inbox for screenshots. It imports only images the user selects, recognizes English text on-device, and helps turn screenshots into searchable, actionable items.
+FrameFile is a private, local-first iPhone inbox for screenshots. It imports only images the user selects, recognizes English text on-device, and helps turn screenshots into searchable, actionable items.
 
 ## Requirements
 
@@ -21,7 +21,7 @@ No account, backend, API key, subscription, or third-party dependency is require
 
 ## Share extension
 
-ScreenStash includes a Share Extension for the screenshot share sheet. A user can choose ScreenStash, assign a built-in category, and save without first opening the app. The extension places the selected image in an App Group staging queue; the main app then performs compression and Vision OCR when it next becomes active.
+FrameFile includes a Share Extension for the screenshot share sheet. A user can choose FrameFile, assign a built-in category, and save without first opening the app. The extension places the selected image in an App Group staging queue; the main app then performs compression and Vision OCR when it next becomes active.
 
 Both targets use the App Group `group.com.screenstash.shared`. Before running on a physical device or distributing the app:
 
@@ -47,7 +47,7 @@ Staging avoids performing memory-intensive OCR inside the system extension proce
 - No analytics, advertising, tracking, accounts, or uploads are included.
 - The privacy manifest declares no collected data or tracking. It declares the app-scoped UserDefaults reason used for preferences.
 
-The `docs` directory contains a support page and a ScreenStash-specific privacy policy ready for free hosting with GitHub Pages. After publishing, use the site root as the App Store Connect Support URL and `/privacy.html` as the Privacy Policy URL.
+The `docs` directory contains a support page and a FrameFile-specific privacy policy ready for free hosting with GitHub Pages. After publishing, use the site root as the App Store Connect Support URL and `/privacy.html` as the Privacy Policy URL.
 
 ## Export format
 

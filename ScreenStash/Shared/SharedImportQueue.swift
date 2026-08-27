@@ -41,7 +41,7 @@ enum SharedImportQueueError: LocalizedError, Equatable {
     var errorDescription: String? {
         switch self {
         case .appGroupUnavailable:
-            "ScreenStash sharing is not configured yet. Open the main app after enabling its App Group."
+            "FrameFile sharing is not configured yet. Open the main app after enabling its App Group."
         case .emptyImage:
             "The shared screenshot did not contain image data."
         case .unreadableEntry:

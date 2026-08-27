@@ -9,7 +9,6 @@ struct ShareableScreenshot: Transferable, Sendable {
         DataRepresentation(exportedContentType: .jpeg) { screenshot in
             screenshot.data
         }
-        .suggestedFileName("ScreenStash Screenshot.jpg")
+        .suggestedFileName("FrameFile Screenshot.jpg")
     }
 }
-

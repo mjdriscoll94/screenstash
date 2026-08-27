@@ -1,8 +1,8 @@
 import Foundation
 
 enum AppBrand {
-    static let shortName = "ScreenStash"
-    static let storeName = "ScreenStash: Screenshot Filing"
+    static let shortName = "FrameFile"
+    static let storeName = "FrameFile"
 }
 
 enum AppLinks {

@@ -140,7 +140,7 @@ struct ScreenshotDetailView: View {
                     Text("Change reminder")
                         .font(.subheadline.weight(.semibold))
                 } else {
-                    Text("Choose when ScreenStash should remind you about this screenshot.")
+                    Text("Choose when FrameFile should remind you about this screenshot.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
@@ -258,7 +258,7 @@ struct ScreenshotDetailView: View {
                 Button(role: .destructive) {
                     confirmationAction = .delete
                 } label: {
-                    Label("Delete from ScreenStash", systemImage: "trash")
+                    Label("Delete from FrameFile", systemImage: "trash")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.bordered)
@@ -346,7 +346,7 @@ struct ScreenshotDetailView: View {
         switch confirmationAction {
         case .resolve: "Its reminder will be removed and it will leave the Inbox."
         case .archive: "Its reminder will be removed and it will leave the Inbox."
-        case .delete: "This removes the ScreenStash copy. The original in Photos is not affected."
+        case .delete: "This removes the FrameFile copy. The original in Photos is not affected."
         case nil: ""
         }
     }

@@ -210,7 +210,7 @@ struct CategoriesView: View {
                     catalog: dependencies.sharedCategoryCatalog
                 )
             } catch {
-                errorMessage = "The category was saved, but the share sheet could not be updated. Reopen ScreenStash to retry."
+                errorMessage = "The category was saved, but the share sheet could not be updated. Reopen FrameFile to retry."
             }
         }
     }
