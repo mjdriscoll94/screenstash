@@ -143,6 +143,8 @@ struct SettingsView: View {
                 }
             }
         }
+        .scrollContentBackground(.hidden)
+        .frameFileScreenBackground()
         .navigationTitle("Settings")
         .accessibilityIdentifier("settings.screen")
         .task { await refreshNotificationStatus() }

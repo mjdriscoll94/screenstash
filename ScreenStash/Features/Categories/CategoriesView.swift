@@ -113,8 +113,10 @@ struct CategoriesView: View {
                     }
                 }
                 .listStyle(.insetGrouped)
+                .scrollContentBackground(.hidden)
             }
         }
+        .frameFileScreenBackground()
         .navigationTitle("Categories")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -265,10 +267,15 @@ private struct CategorySummaryRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 12) {
-                Image(systemName: symbolName)
-                    .frame(width: 30)
-                    .font(.title3)
-                    .foregroundStyle(.tint)
+                ZStack {
+                    RoundedRectangle(cornerRadius: 11, style: .continuous)
+                        .fill(ScreenStashTheme.brandGradient)
+                        .frame(width: 40, height: 40)
+
+                    Image(systemName: symbolName)
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(.white)
+                }
                     .accessibilityHidden(true)
 
                 Text(name)
@@ -277,8 +284,12 @@ private struct CategorySummaryRow: View {
                 Spacer()
 
                 Text(count, format: .number)
-                    .foregroundStyle(.secondary)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(ScreenStashTheme.brandBlue)
                     .monospacedDigit()
+                    .padding(.horizontal, 9)
+                    .padding(.vertical, 5)
+                    .background(ScreenStashTheme.brandBlue.opacity(0.10), in: Capsule())
             }
 
             if !recentItems.isEmpty {
@@ -287,6 +298,10 @@ private struct CategorySummaryRow: View {
                         ScreenshotThumbnail(data: item.thumbnailData)
                             .frame(width: 42, height: 54)
                             .clipShape(RoundedRectangle(cornerRadius: 6))
+                            .overlay {
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(ScreenStashTheme.cardStroke, lineWidth: 1)
+                            }
                     }
                     if count > recentItems.count {
                         Text("+\(count - recentItems.count)")

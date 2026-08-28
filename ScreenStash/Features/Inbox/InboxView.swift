@@ -45,6 +45,7 @@ struct InboxView: View {
                 list(items: displayedItems)
             }
         }
+        .frameFileScreenBackground()
         .navigationTitle(viewModel.isSelecting ? "\(viewModel.selectedIDs.count) Selected" : "Inbox")
         .navigationBarTitleDisplayMode(.large)
         .accessibilityIdentifier("inbox.screen")
@@ -154,10 +155,16 @@ struct InboxView: View {
                     }
                     ScreenshotRow(item: item)
                 }
+                .padding(11)
+                .frameFileCard()
                 .contentShape(Rectangle())
             }
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
+            .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
         }
         .listStyle(.plain)
+        .scrollContentBackground(.hidden)
     }
 
     @ViewBuilder
@@ -188,7 +195,7 @@ struct InboxView: View {
         Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
             .font(.title3)
             .foregroundStyle(isSelected ? Color.accentColor : Color.secondary)
-            .background(.background, in: Circle())
+            .background(ScreenStashTheme.cardBackground, in: Circle())
             .accessibilityHidden(true)
     }
 
@@ -310,7 +317,12 @@ struct InboxView: View {
         }
         .padding(.horizontal)
         .padding(.vertical, 9)
-        .background(.bar)
+        .background(.ultraThinMaterial)
+        .overlay(alignment: .bottom) {
+            Rectangle()
+                .fill(ScreenStashTheme.cardStroke)
+                .frame(height: 1)
+        }
         .accessibilityElement(children: .contain)
     }
 

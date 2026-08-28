@@ -31,13 +31,16 @@ struct ScreenshotDetailView: View {
             LazyVStack(alignment: .leading, spacing: 20) {
                 ZoomableImageView(imageData: item.imageData)
                     .frame(height: 430)
+                    .frameFileCard()
 
                 detailsSection
                 reminderSection(viewModel: viewModel)
                 actionsSection
             }
             .padding()
+            .groupBoxStyle(FrameFileGroupBoxStyle())
         }
+        .frameFileScreenBackground()
         .navigationTitle(item.displayTitle)
         .navigationBarTitleDisplayMode(.inline)
         .accessibilityIdentifier("detail.screen")
@@ -218,7 +221,11 @@ struct ScreenshotDetailView: View {
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.quaternary, in: RoundedRectangle(cornerRadius: 12))
+        .background(ScreenStashTheme.brandBlue.opacity(0.09), in: RoundedRectangle(cornerRadius: 12))
+        .overlay {
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(ScreenStashTheme.brandBlue.opacity(0.16), lineWidth: 1)
+        }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("detail.reminder.saved")
     }

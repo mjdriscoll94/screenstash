@@ -10,6 +10,11 @@ struct AboutView: View {
                         .scaledToFit()
                         .frame(width: 88, height: 88)
                         .clipShape(RoundedRectangle(cornerRadius: 19, style: .continuous))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 19, style: .continuous)
+                                .stroke(ScreenStashTheme.cardStroke, lineWidth: 1)
+                        }
+                        .shadow(color: ScreenStashTheme.brandBlue.opacity(0.18), radius: 14, y: 6)
                         .accessibilityHidden(true)
                     Text(AppBrand.storeName)
                         .font(.title2.bold())
@@ -59,6 +64,8 @@ struct AboutView: View {
                     .textSelection(.enabled)
             }
         }
+        .scrollContentBackground(.hidden)
+        .frameFileScreenBackground()
         .navigationTitle("About")
         .navigationBarTitleDisplayMode(.inline)
     }

@@ -30,6 +30,8 @@ struct CleanupReviewView: View {
                             .scaledToFit()
                             .frame(maxHeight: 440)
                             .clipShape(RoundedRectangle(cornerRadius: ScreenStashTheme.imageCornerRadius))
+                            .padding(6)
+                            .frameFileCard()
                             .accessibilityLabel("Screenshot: \(item.displayTitle)")
 
                         VStack(spacing: 10) {
@@ -78,6 +80,8 @@ struct CleanupReviewView: View {
                             }
                             .buttonStyle(.bordered)
                         }
+                        .padding(14)
+                        .frameFileCard()
                     }
                     .padding()
                 }
@@ -89,6 +93,7 @@ struct CleanupReviewView: View {
                 )
             }
         }
+        .frameFileScreenBackground()
         .navigationTitle("Cleanup")
         .navigationBarTitleDisplayMode(.inline)
         .overlay {
@@ -110,6 +115,8 @@ struct CleanupReviewView: View {
                             displayedComponents: [.date, .hourAndMinute]
                         )
                     }
+                    .scrollContentBackground(.hidden)
+                    .frameFileScreenBackground()
                     .navigationTitle("Add Reminder")
                     .navigationBarTitleDisplayMode(.inline)
                     .toolbar {
@@ -167,7 +174,10 @@ struct CleanupReviewView: View {
             let days = AgingCalculator.daysOld(createdAt: item.createdAt)
             Label("\(days) days old", systemImage: "calendar")
                 .font(.subheadline.weight(.medium))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(ScreenStashTheme.brandBlue)
+                .padding(.horizontal, 11)
+                .padding(.vertical, 6)
+                .background(ScreenStashTheme.brandBlue.opacity(0.10), in: Capsule())
             Text("\(max(candidates.count - 1, 0)) more after this")
                 .font(.caption)
                 .foregroundStyle(.tertiary)

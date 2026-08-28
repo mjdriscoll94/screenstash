@@ -8,10 +8,14 @@ struct CategoryBadge: View {
         Label(name, systemImage: symbolName)
             .font(.caption.weight(.medium))
             .lineLimit(1)
-            .foregroundStyle(.secondary)
+            .foregroundStyle(ScreenStashTheme.brandBlue)
             .padding(.horizontal, 9)
             .padding(.vertical, 5)
-            .background(.thinMaterial, in: Capsule())
+            .background(ScreenStashTheme.brandBlue.opacity(0.10), in: Capsule())
+            .overlay {
+                Capsule()
+                    .stroke(ScreenStashTheme.brandBlue.opacity(0.15), lineWidth: 1)
+            }
             .accessibilityElement(children: .combine)
             .accessibilityLabel("Category: \(name)")
     }

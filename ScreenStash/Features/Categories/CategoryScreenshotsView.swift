@@ -82,6 +82,7 @@ private struct ScreenshotCollectionView: View {
                 list
             }
         }
+        .frameFileScreenBackground()
         .navigationTitle(isSelecting ? "\(selectedIDs.count) Selected" : title)
         .toolbar { collectionToolbar }
         .confirmationDialog(
@@ -152,10 +153,16 @@ private struct ScreenshotCollectionView: View {
                     }
                     ScreenshotRow(item: item)
                 }
+                .padding(11)
+                .frameFileCard()
                 .contentShape(Rectangle())
             }
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
+            .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
         }
         .listStyle(.plain)
+        .scrollContentBackground(.hidden)
     }
 
     @ToolbarContentBuilder
@@ -228,7 +235,7 @@ private struct ScreenshotCollectionView: View {
         return Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
             .font(.title3)
             .foregroundStyle(isSelected ? Color.accentColor : Color.secondary)
-            .background(.background, in: Circle())
+            .background(ScreenStashTheme.cardBackground, in: Circle())
             .accessibilityHidden(true)
     }
 

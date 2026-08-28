@@ -89,7 +89,7 @@ struct OnboardingView: View {
             .padding()
             .accessibilityIdentifier("onboarding.continue")
         }
-        .background(ScreenStashTheme.secondaryBackground)
+        .frameFileScreenBackground()
     }
 }
 
@@ -116,6 +116,9 @@ private struct OnboardingPageView: View {
                         .multilineTextAlignment(.center)
                         .lineSpacing(3)
                 }
+                .padding(18)
+                .frame(maxWidth: .infinity)
+                .frameFileCard()
                 .accessibilityElement(children: .combine)
             }
             .padding(.horizontal, 24)

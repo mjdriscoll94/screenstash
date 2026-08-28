@@ -37,10 +37,15 @@ struct SearchView: View {
                             reason: viewModel.matchReason(for: item) ?? .filters
                         )
                     }
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+                    .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
                 }
                 .listStyle(.plain)
+                .scrollContentBackground(.hidden)
             }
         }
+        .frameFileScreenBackground()
         .navigationTitle("Search")
         .accessibilityIdentifier("search.screen")
         .searchable(text: $viewModel.query, prompt: "Text, title, notes, or category")
@@ -72,10 +77,11 @@ private struct SearchResultRow: View {
             ScreenshotRow(item: item)
             Label(reason.rawValue, systemImage: "checkmark.circle")
                 .font(.caption.weight(.medium))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(ScreenStashTheme.brandBlue)
                 .accessibilityLabel("Matched in \(reason.rawValue)")
         }
-        .padding(.vertical, 3)
+        .padding(11)
+        .frameFileCard()
     }
 }
 
@@ -132,6 +138,8 @@ private struct SearchFilterView: View {
                     }
                 }
             }
+            .scrollContentBackground(.hidden)
+            .frameFileScreenBackground()
             .navigationTitle("Search Filters")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

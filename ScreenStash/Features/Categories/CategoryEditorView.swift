@@ -58,19 +58,22 @@ struct CategoryEditorView: View {
                                     .frame(width: 44, height: 44)
                                     .background(
                                         symbolName == symbol
-                                            ? Color.accentColor.opacity(0.18)
-                                            : Color.secondary.opacity(0.08),
+                                            ? ScreenStashTheme.brandBlue.opacity(0.14)
+                                            : ScreenStashTheme.cardBackground,
                                         in: RoundedRectangle(cornerRadius: 10)
                                     )
                                     .overlay {
-                                        if symbolName == symbol {
-                                            RoundedRectangle(cornerRadius: 10)
-                                                .stroke(Color.accentColor, lineWidth: 2)
-                                        }
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .stroke(
+                                                symbolName == symbol
+                                                    ? ScreenStashTheme.brandBlue
+                                                    : ScreenStashTheme.cardStroke,
+                                                lineWidth: symbolName == symbol ? 2 : 1
+                                            )
                                     }
                             }
                             .buttonStyle(.plain)
-                            .foregroundStyle(symbolName == symbol ? Color.accentColor : Color.primary)
+                            .foregroundStyle(symbolName == symbol ? ScreenStashTheme.brandBlue : Color.primary)
                             .accessibilityLabel(symbol.replacingOccurrences(of: ".", with: " "))
                             .accessibilityValue(symbolName == symbol ? "Selected" : "")
                         }
@@ -79,6 +82,8 @@ struct CategoryEditorView: View {
                 }
 
             }
+            .scrollContentBackground(.hidden)
+            .frameFileScreenBackground()
             .navigationTitle(category == nil ? "New Category" : "Edit Category")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

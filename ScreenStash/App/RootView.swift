@@ -139,6 +139,9 @@ private struct MainTabView: View {
                 Label(AppTab.settings.title, systemImage: AppTab.settings.symbolName)
             }
         }
+        .tint(ScreenStashTheme.brandBlue)
+        .toolbarBackground(ScreenStashTheme.navigationSurface, for: .tabBar)
+        .toolbarBackground(.visible, for: .tabBar)
         .onChange(of: showResolvedCategory) { _, newValue in
             UserDefaults.standard.set(
                 newValue,

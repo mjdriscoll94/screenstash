@@ -35,6 +35,10 @@ struct ScreenshotCard: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
                 .clipShape(RoundedRectangle(cornerRadius: ScreenStashTheme.imageCornerRadius))
+                .overlay {
+                    RoundedRectangle(cornerRadius: ScreenStashTheme.imageCornerRadius)
+                        .stroke(ScreenStashTheme.cardStroke, lineWidth: 1)
+                }
 
             Text(item.displayTitle)
                 .font(.headline)
@@ -51,19 +55,21 @@ struct ScreenshotCard: View {
                 Spacer(minLength: 0)
                 if item.reminderDate != nil {
                     Image(systemName: "bell.fill")
+                        .foregroundStyle(ScreenStashTheme.brandBlue)
                         .accessibilityLabel("Has reminder")
                 }
                 if item.isFavorite {
                     Image(systemName: "star.fill")
+                        .foregroundStyle(.yellow)
                         .accessibilityLabel("Favorite")
                 }
             }
             .font(.caption)
             .foregroundStyle(.secondary)
         }
-        .padding(10)
+        .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(ScreenStashTheme.cardBackground, in: RoundedRectangle(cornerRadius: ScreenStashTheme.cardCornerRadius))
+        .frameFileCard()
         .accessibilityElement(children: .combine)
         .accessibilityLabel(item.displayTitle)
         .accessibilityValue(item.category?.name ?? "Unsorted")

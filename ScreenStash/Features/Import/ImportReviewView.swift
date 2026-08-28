@@ -82,6 +82,7 @@ struct ImportReviewView: View {
             .onChange(of: currentIndex) { _, _ in
                 reminderDraft = currentItem?.reminderDate
             }
+            .frameFileScreenBackground()
         }
         .interactiveDismissDisabled(isSaving)
     }
@@ -192,6 +193,8 @@ private struct ImportReviewEditor: View {
             }
 
         }
+        .scrollContentBackground(.hidden)
+        .frameFileScreenBackground()
     }
 
     private var reminderToggle: Binding<Bool> {

@@ -50,6 +50,8 @@ struct PrivacyView: View {
                 }
             }
         }
+        .scrollContentBackground(.hidden)
+        .frameFileScreenBackground()
         .navigationTitle("Privacy")
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -71,8 +73,13 @@ private struct PrivacyRow: View {
                         .foregroundStyle(.secondary)
                 }
             } icon: {
-                Image(systemName: symbol)
-                    .foregroundStyle(.tint)
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .fill(ScreenStashTheme.brandGradient)
+                        .frame(width: 36, height: 36)
+                    Image(systemName: symbol)
+                        .foregroundStyle(.white)
+                }
             }
             .accessibilityElement(children: .combine)
         }
