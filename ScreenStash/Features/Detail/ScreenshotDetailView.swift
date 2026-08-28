@@ -3,7 +3,6 @@ import SwiftUI
 
 struct ScreenshotDetailView: View {
     private enum ConfirmationAction {
-        case resolve
         case archive
         case delete
     }
@@ -35,7 +34,6 @@ struct ScreenshotDetailView: View {
 
                 detailsSection
                 reminderSection(viewModel: viewModel)
-                actionsSection
             }
             .padding()
             .groupBoxStyle(FrameFileGroupBoxStyle())
@@ -45,6 +43,30 @@ struct ScreenshotDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .accessibilityIdentifier("detail.screen")
         .toolbar {
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                statusActionButton(viewModel: viewModel)
+
+                if item.status != .archived {
+                    Button {
+                        confirmationAction = .archive
+                    } label: {
+                        Image(systemName: "archivebox")
+                    }
+                    .accessibilityLabel("Archive screenshot")
+                    .accessibilityHint("Asks for confirmation before archiving")
+                    .accessibilityIdentifier("detail.archive")
+                }
+
+                Button(role: .destructive) {
+                    confirmationAction = .delete
+                } label: {
+                    Image(systemName: "trash")
+                }
+                .accessibilityLabel("Delete screenshot")
+                .accessibilityHint("Asks for confirmation before deleting the FrameFile copy")
+                .accessibilityIdentifier("detail.delete")
+            }
+
             ToolbarItemGroup(placement: .topBarTrailing) {
                 Button {
                     item.isFavorite.toggle()
@@ -90,6 +112,38 @@ struct ScreenshotDetailView: View {
             if !item.isDeleted {
                 viewModel.saveEdits(for: item, context: modelContext)
             }
+        }
+    }
+
+    @ViewBuilder
+    private func statusActionButton(viewModel: ScreenshotDetailViewModel) -> some View {
+        if item.status == .resolved || item.status == .archived {
+            Button {
+                if viewModel.reopen(item, context: modelContext) {
+                    dismiss()
+                }
+            } label: {
+                Image(systemName: "arrow.uturn.backward.circle")
+            }
+            .accessibilityLabel("Return screenshot to Active")
+            .accessibilityIdentifier("detail.reopen")
+        } else {
+            Button {
+                Task {
+                    if await viewModel.resolve(
+                        item,
+                        context: modelContext,
+                        notifications: dependencies.notificationScheduler
+                    ) {
+                        dismiss()
+                    }
+                }
+            } label: {
+                Image(systemName: "checkmark.circle")
+            }
+            .accessibilityLabel("Mark screenshot resolved")
+            .accessibilityHint("Marks this screenshot resolved immediately")
+            .accessibilityIdentifier("detail.resolve")
         }
     }
 
@@ -230,50 +284,6 @@ struct ScreenshotDetailView: View {
         .accessibilityIdentifier("detail.reminder.saved")
     }
 
-    private var actionsSection: some View {
-        GroupBox("Actions") {
-            VStack(spacing: 10) {
-                if item.status == .resolved || item.status == .archived {
-                    Button {
-                        if viewModel.reopen(item, context: modelContext) {
-                            dismiss()
-                        }
-                    } label: {
-                        Label("Return to Active", systemImage: "arrow.uturn.backward.circle")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.borderedProminent)
-                } else {
-                    Button {
-                        confirmationAction = .resolve
-                    } label: {
-                        Label("Mark Resolved", systemImage: "checkmark.circle")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .accessibilityIdentifier("detail.resolve")
-
-                    Button {
-                        confirmationAction = .archive
-                    } label: {
-                        Label("Archive", systemImage: "archivebox")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.bordered)
-                }
-
-                Button(role: .destructive) {
-                    confirmationAction = .delete
-                } label: {
-                    Label("Delete from FrameFile", systemImage: "trash")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.bordered)
-            }
-            .padding(.top, 8)
-        }
-    }
-
     private func reminderPreset(_ title: String, date: Date) -> some View {
         Button(title) {
             viewModel.reminderDraft = date
@@ -285,18 +295,6 @@ struct ScreenshotDetailView: View {
     @ViewBuilder
     private var confirmationButtons: some View {
         switch confirmationAction {
-        case .resolve:
-            Button("Mark Resolved") {
-                Task {
-                    if await viewModel.resolve(
-                        item,
-                        context: modelContext,
-                        notifications: dependencies.notificationScheduler
-                    ) {
-                        dismiss()
-                    }
-                }
-            }
         case .archive:
             Button("Archive") {
                 Task {
@@ -342,7 +340,6 @@ struct ScreenshotDetailView: View {
 
     private var confirmationTitle: String {
         switch confirmationAction {
-        case .resolve: "Mark this screenshot resolved?"
         case .archive: "Archive this screenshot?"
         case .delete: "Delete this screenshot?"
         case nil: "Confirm Action"
@@ -351,7 +348,6 @@ struct ScreenshotDetailView: View {
 
     private var confirmationMessage: String {
         switch confirmationAction {
-        case .resolve: "Its reminder will be removed and it will leave the Inbox."
         case .archive: "Its reminder will be removed and it will leave the Inbox."
         case .delete: "This removes the FrameFile copy. The original in Photos is not affected."
         case nil: ""
