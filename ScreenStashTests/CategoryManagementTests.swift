@@ -135,6 +135,55 @@ final class CategoryManagementTests: XCTestCase {
         XCTAssertEqual(results.map(\.id), [newerResolved.id, olderResolved.id])
     }
 
+    func testUnsortedCollectionContainsOnlyUnresolvedItemsWithoutCategory() {
+        let category = ScreenshotCategoryRecord(category: .other, sortOrder: 0)
+        let unsorted = ScreenshotItem(
+            importedAt: Date(timeIntervalSince1970: 200),
+            imageData: Data([1]),
+            title: "Unsorted",
+            status: .inbox
+        )
+        let categorized = ScreenshotItem(
+            importedAt: Date(timeIntervalSince1970: 300),
+            imageData: Data([2]),
+            title: "Categorized",
+            category: category,
+            status: .active
+        )
+        let resolvedWithoutCategory = ScreenshotItem(
+            importedAt: Date(timeIntervalSince1970: 400),
+            imageData: Data([3]),
+            title: "Resolved",
+            status: .resolved
+        )
+
+        let results = CategoriesViewModel().unsortedItems(
+            from: [categorized, resolvedWithoutCategory, unsorted]
+        )
+
+        XCTAssertEqual(results.map(\.id), [unsorted.id])
+    }
+
+    func testArchivedCollectionContainsOnlyArchivedItemsInMostRecentOrder() {
+        let older = ScreenshotItem(
+            updatedAt: Date(timeIntervalSince1970: 100),
+            imageData: Data([1]),
+            title: "Older",
+            status: .archived
+        )
+        let newer = ScreenshotItem(
+            updatedAt: Date(timeIntervalSince1970: 200),
+            imageData: Data([2]),
+            title: "Newer",
+            status: .archived
+        )
+        let active = ScreenshotItem(imageData: Data([3]), status: .active)
+
+        let results = CategoriesViewModel().archivedItems(from: [older, active, newer])
+
+        XCTAssertEqual(results.map(\.id), [newer.id, older.id])
+    }
+
     func testResetAllPreferencesClearsEveryScreenStashPreference() throws {
         let suiteName = "ScreenStashPreferencesTests-\(UUID().uuidString)"
         let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))

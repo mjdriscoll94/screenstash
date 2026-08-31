@@ -36,25 +36,25 @@ final class ScreenStashUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Flight to Chicago"].waitForExistence(timeout: 5))
     }
 
-    func testShowingResolvedCategory() {
+    func testOpeningSystemCollections() {
         let app = launchApp()
-        app.tabBars.buttons["Settings"].tap()
-
-        let toggle = app.switches["settings.showResolvedCategory"]
-        XCTAssertTrue(toggle.waitForExistence(timeout: 5))
-        if !isSwitchOn(toggle) {
-            // Tap the physical switch control rather than the full Form row.
-            toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
-        }
-        XCTAssertTrue(waitForSwitchToTurnOn(toggle), "Switch value was \(String(describing: toggle.value))")
-
         app.tabBars.buttons["Categories"].tap()
+
+        XCTAssertTrue(app.staticTexts["category.row.Unsorted"].waitForExistence(timeout: 5))
         let resolvedCategory = app.staticTexts["category.row.Resolved"]
         XCTAssertTrue(resolvedCategory.waitForExistence(timeout: 5))
         resolvedCategory.tap()
 
         XCTAssertTrue(app.navigationBars["Resolved"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["Essay to Read"].waitForExistence(timeout: 5))
+
+        app.navigationBars.buttons.firstMatch.tap()
+        let archivedCategory = app.staticTexts["category.row.Archived"]
+        XCTAssertTrue(archivedCategory.waitForExistence(timeout: 5))
+        archivedCategory.tap()
+
+        XCTAssertTrue(app.navigationBars["Archived"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Hotel Confirmation"].waitForExistence(timeout: 5))
     }
 
     func testDeleteAllAppDataClearsScreenshotsAndRestoresDefaultCategories() {
@@ -85,23 +85,6 @@ final class ScreenStashUITests: XCTestCase {
 
         app.tabBars.buttons["Categories"].tap()
         XCTAssertTrue(app.staticTexts["Buy Later"].waitForExistence(timeout: 5))
-    }
-
-    private func isSwitchOn(_ toggle: XCUIElement) -> Bool {
-        let value = String(describing: toggle.value ?? "").lowercased()
-        return value == "1"
-            || value == "on"
-            || value == "true"
-            || (toggle.value as? NSNumber)?.boolValue == true
-    }
-
-    private func waitForSwitchToTurnOn(_ toggle: XCUIElement) -> Bool {
-        let deadline = Date().addingTimeInterval(2)
-        while Date() < deadline {
-            if isSwitchOn(toggle) { return true }
-            RunLoop.current.run(until: Date().addingTimeInterval(0.05))
-        }
-        return isSwitchOn(toggle)
     }
 
     func testAddingCustomCategory() {
@@ -284,10 +267,6 @@ final class ScreenStashUITests: XCTestCase {
         let resolveButton = app.buttons["detail.resolve"]
         XCTAssertTrue(resolveButton.waitForExistence(timeout: 5))
         resolveButton.tap()
-
-        let confirmation = app.sheets.buttons["Mark Resolved"].firstMatch
-        XCTAssertTrue(confirmation.waitForExistence(timeout: 5))
-        confirmation.tap()
 
         XCTAssertTrue(app.navigationBars["Inbox"].waitForExistence(timeout: 5))
         XCTAssertFalse(app.staticTexts["Weekend Pancakes"].exists)

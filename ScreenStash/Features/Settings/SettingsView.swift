@@ -18,9 +18,7 @@ struct SettingsView: View {
     private var defaultLayout = ScreenshotLayoutMode.grid.rawValue
 
     @AppStorage(AppPreferenceKey.defaultCategory)
-    private var defaultCategory = ScreenshotCategory.other.rawValue
-
-    @Binding var showResolvedCategory: Bool
+    private var defaultCategory = ""
 
     @AppStorage(AppPreferenceKey.agingThreshold)
     private var agingThreshold = ScreenshotAgingThreshold.thirtyDays.rawValue
@@ -47,9 +45,6 @@ struct SettingsView: View {
                     }
                 }
 
-                Toggle("Show Resolved Category", isOn: $showResolvedCategory)
-                    .accessibilityHint("Shows or hides the Resolved collection on the Categories tab")
-                    .accessibilityIdentifier("settings.showResolvedCategory")
             }
 
             Section("Importing") {
@@ -62,7 +57,7 @@ struct SettingsView: View {
                 }
 
                 NavigationLink {
-                    CategoriesView(showResolvedCategory: $showResolvedCategory)
+                    CategoriesView()
                 } label: {
                     Label("Manage Categories", systemImage: "tag")
                 }
@@ -149,9 +144,12 @@ struct SettingsView: View {
         .accessibilityIdentifier("settings.screen")
         .task { await refreshNotificationStatus() }
         .onChange(of: categories.map(\.key)) { _, categoryKeys in
-            if !categoryKeys.contains(defaultCategory) {
-                defaultCategory = categoryKeys.first ?? ""
+            if !defaultCategory.isEmpty && !categoryKeys.contains(defaultCategory) {
+                defaultCategory = ""
             }
+        }
+        .onChange(of: defaultCategory) { _, newValue in
+            SharedDefaultCategoryPreference.save(newValue)
         }
         .fileExporter(
             isPresented: $isExporting,
@@ -236,7 +234,8 @@ struct SettingsView: View {
         }
 
         AppPreferenceKey.resetAll()
-        showResolvedCategory = false
+        defaultCategory = ""
+        SharedDefaultCategoryPreference.save("")
         await BuiltInCategorySeeder.seedIfNeeded(in: modelContext, excluding: [])
 
         do {
@@ -265,7 +264,7 @@ struct SettingsView: View {
 
 #Preview {
     NavigationStack {
-        SettingsView(showResolvedCategory: .constant(false))
+        SettingsView()
     }
     .modelContainer(PreviewData.container)
 }

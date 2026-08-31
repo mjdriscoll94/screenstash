@@ -46,16 +46,16 @@ enum AppPreferenceKey {
     static let hasSeenOnboarding = "hasSeenOnboarding"
     static let defaultLayout = "defaultLayout"
     static let defaultCategory = "defaultCategory"
-    // Keep the original persisted key so existing user preferences migrate automatically.
-    static let showResolvedCategory = "showResolved"
     static let agingThreshold = "agingThreshold"
     static let deletedBuiltInCategories = "deletedBuiltInCategories"
+    // Removed preference retained only so Delete All App Data clears older installs.
+    private static let legacyShowResolvedCategory = "showResolved"
 
     static let allKeys = [
         hasSeenOnboarding,
         defaultLayout,
         defaultCategory,
-        showResolvedCategory,
+        legacyShowResolvedCategory,
         agingThreshold,
         deletedBuiltInCategories
     ]

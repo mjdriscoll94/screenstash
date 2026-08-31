@@ -71,7 +71,14 @@ final class ImportViewModel {
                 }
 
                 let suggestion = dependencies.categorySuggester.suggestCategory(for: recognizedText)
-                let chosenKey = suggestion == .other ? defaultCategoryKey : suggestion.rawValue
+                let category: ScreenshotCategoryRecord?
+                if suggestion != .other {
+                    category = categoriesByKey[suggestion.rawValue]
+                } else if defaultCategoryKey.isEmpty {
+                    category = nil
+                } else {
+                    category = categoriesByKey[defaultCategoryKey]
+                }
                 let now = Date.now
                 let item = ScreenshotItem(
                     createdAt: now,
@@ -81,7 +88,7 @@ final class ImportViewModel {
                     thumbnailData: processed.thumbnailData,
                     recognizedText: recognizedText,
                     title: "",
-                    category: categoriesByKey[chosenKey] ?? categoriesByKey[ScreenshotCategory.other.rawValue]
+                    category: category
                 )
 
                 context.insert(item)

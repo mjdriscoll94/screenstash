@@ -19,6 +19,12 @@ enum CategoryManagementError: LocalizedError, Equatable {
 @Observable
 @MainActor
 final class CategoriesViewModel {
+    func unsortedItems(from items: [ScreenshotItem]) -> [ScreenshotItem] {
+        items
+            .filter { $0.category == nil && $0.isUnresolved }
+            .sorted { $0.importedAt > $1.importedAt }
+    }
+
     func activeItems(
         for category: ScreenshotCategoryRecord,
         from items: [ScreenshotItem]
@@ -42,6 +48,12 @@ final class CategoriesViewModel {
             .sorted {
                 ($0.resolvedAt ?? $0.updatedAt) > ($1.resolvedAt ?? $1.updatedAt)
             }
+    }
+
+    func archivedItems(from items: [ScreenshotItem]) -> [ScreenshotItem] {
+        items
+            .filter { $0.status == .archived }
+            .sorted { $0.updatedAt > $1.updatedAt }
     }
 
     @discardableResult

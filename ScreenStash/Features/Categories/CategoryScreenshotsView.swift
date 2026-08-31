@@ -27,6 +27,25 @@ struct CategoryScreenshotsView: View {
     }
 }
 
+struct UnsortedScreenshotsView: View {
+    @Query(sort: \ScreenshotItem.importedAt, order: .reverse)
+    private var allItems: [ScreenshotItem]
+
+    private var items: [ScreenshotItem] {
+        allItems.filter { $0.category == nil && $0.isUnresolved }
+    }
+
+    var body: some View {
+        ScreenshotCollectionView(
+            items: items,
+            title: "Unsorted",
+            emptyTitle: "No Unsorted Screenshots",
+            emptyMessage: "Screenshots without a category will appear here.",
+            symbolName: "tray"
+        )
+    }
+}
+
 struct ResolvedScreenshotsView: View {
     @Query(sort: \ScreenshotItem.updatedAt, order: .reverse)
     private var allItems: [ScreenshotItem]
@@ -42,6 +61,25 @@ struct ResolvedScreenshotsView: View {
             emptyTitle: "No Resolved Screenshots",
             emptyMessage: "Screenshots you mark resolved will appear here.",
             symbolName: ScreenshotStatus.resolved.symbolName
+        )
+    }
+}
+
+struct ArchivedScreenshotsView: View {
+    @Query(sort: \ScreenshotItem.updatedAt, order: .reverse)
+    private var allItems: [ScreenshotItem]
+
+    private var items: [ScreenshotItem] {
+        allItems.filter { $0.status == .archived }
+    }
+
+    var body: some View {
+        ScreenshotCollectionView(
+            items: items,
+            title: "Archived",
+            emptyTitle: "No Archived Screenshots",
+            emptyMessage: "Screenshots you archive will appear here.",
+            symbolName: ScreenshotStatus.archived.symbolName
         )
     }
 }

@@ -39,8 +39,9 @@ final class SharedImportCoordinator {
                     let recognizedText = (try? await dependencies.textRecognizer.recognizeText(
                         in: processed.imageData
                     )) ?? ""
-                    let category = categoriesByKey[pending.record.categoryKey]
-                        ?? categoriesByKey[ScreenshotCategory.other.rawValue]
+                    let category = pending.record.categoryKey.isEmpty
+                        ? nil
+                        : categoriesByKey[pending.record.categoryKey]
                     let title = pending.record.title?
                         .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
                     let now = Date.now

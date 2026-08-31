@@ -33,7 +33,7 @@ final class SharedCategoryCatalogTests: XCTestCase {
         XCTAssertEqual(loaded.last?.isBuiltIn, false)
     }
 
-    func testMissingCatalogFallsBackToBuiltInCategories() async throws {
+    func testMissingCatalogFallsBackToUnsortedAndBuiltInCategories() async throws {
         let directory = FileManager.default.temporaryDirectory
             .appendingPathComponent("ScreenStashMissingCategoryCatalogTests-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: directory) }
@@ -41,7 +41,8 @@ final class SharedCategoryCatalogTests: XCTestCase {
 
         let loaded = try await catalog.loadCategories()
 
-        XCTAssertEqual(loaded.count, ScreenshotCategory.allCases.count)
-        XCTAssertEqual(loaded.first?.key, ScreenshotCategory.buyLater.rawValue)
+        XCTAssertEqual(loaded.count, ScreenshotCategory.allCases.count + 1)
+        XCTAssertEqual(loaded.first?.key, SharedCategoryOption.unsorted.key)
+        XCTAssertEqual(loaded.dropFirst().first?.key, ScreenshotCategory.buyLater.rawValue)
     }
 }

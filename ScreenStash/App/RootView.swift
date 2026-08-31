@@ -34,6 +34,9 @@ struct RootView: View {
             guard isPreparingApp else { return }
 
             await BuiltInCategorySeeder.seedIfNeeded(in: modelContext)
+            SharedDefaultCategoryPreference.save(
+                UserDefaults.standard.string(forKey: AppPreferenceKey.defaultCategory) ?? ""
+            )
             try? await SharedCategoryCatalogSynchronizer.sync(
                 in: modelContext,
                 catalog: dependencies.sharedCategoryCatalog
@@ -101,9 +104,6 @@ private struct StartupLoadingView: View {
 
 private struct MainTabView: View {
     @State private var selectedTab = AppTab.inbox
-    @State private var showResolvedCategory = UserDefaults.standard.bool(
-        forKey: AppPreferenceKey.showResolvedCategory
-    )
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -116,7 +116,7 @@ private struct MainTabView: View {
             }
 
             NavigationStack {
-                CategoriesView(showResolvedCategory: $showResolvedCategory)
+                CategoriesView()
             }
             .tag(AppTab.categories)
             .tabItem {
@@ -132,7 +132,7 @@ private struct MainTabView: View {
             }
 
             NavigationStack {
-                SettingsView(showResolvedCategory: $showResolvedCategory)
+                SettingsView()
             }
             .tag(AppTab.settings)
             .tabItem {
@@ -142,12 +142,6 @@ private struct MainTabView: View {
         .tint(ScreenStashTheme.brandBlue)
         .toolbarBackground(ScreenStashTheme.navigationSurface, for: .tabBar)
         .toolbarBackground(.visible, for: .tabBar)
-        .onChange(of: showResolvedCategory) { _, newValue in
-            UserDefaults.standard.set(
-                newValue,
-                forKey: AppPreferenceKey.showResolvedCategory
-            )
-        }
     }
 }
 

@@ -13,7 +13,7 @@ struct InboxView: View {
     private var layoutRawValue = ScreenshotLayoutMode.grid.rawValue
 
     @AppStorage(AppPreferenceKey.defaultCategory)
-    private var defaultCategoryKey = ScreenshotCategory.other.rawValue
+    private var defaultCategoryKey = ""
 
     @State private var viewModel = InboxViewModel()
     @State private var importViewModel = ImportViewModel()

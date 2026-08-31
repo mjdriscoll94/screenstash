@@ -26,8 +26,8 @@ final class ShareImportViewModel {
 
     var phase: ShareImportPhase = .loading
     var screenshots: [ShareableScreenshot] = []
-    var categories = SharedCategoryOption.builtInDefaults
-    var selectedCategoryKey = ScreenshotCategory.other.rawValue
+    var categories = [SharedCategoryOption.unsorted] + SharedCategoryOption.builtInDefaults
+    var selectedCategoryKey = SharedDefaultCategoryPreference.load()
 
     var canSave: Bool {
         !screenshots.isEmpty && screenshots.allSatisfy {
@@ -51,9 +51,11 @@ final class ShareImportViewModel {
         phase = .loading
 
         if let sharedCategories = try? await categoryCatalog.loadCategories() {
-            categories = sharedCategories.isEmpty ? [.unsorted] : sharedCategories
+            categories = sharedCategories.contains(where: { $0.key.isEmpty })
+                ? sharedCategories
+                : [.unsorted] + sharedCategories
             if !categories.contains(where: { $0.key == selectedCategoryKey }) {
-                selectedCategoryKey = categories.first?.key ?? ""
+                selectedCategoryKey = ""
             }
         }
 

@@ -7,7 +7,7 @@ enum SharedCategoryCatalogSynchronizer {
         catalog: any SharedCategoryCataloging
     ) async throws {
         let descriptor = FetchDescriptor<ScreenshotCategoryRecord>()
-        let categories = try context.fetch(descriptor)
+        let categories = [SharedCategoryOption.unsorted] + (try context.fetch(descriptor)
             .sorted { $0.sortOrder < $1.sortOrder }
             .map {
             SharedCategoryOption(
@@ -17,7 +17,7 @@ enum SharedCategoryCatalogSynchronizer {
                 sortOrder: $0.sortOrder,
                 isBuiltIn: $0.isBuiltIn
             )
-            }
+            })
         try await catalog.saveCategories(categories)
     }
 }

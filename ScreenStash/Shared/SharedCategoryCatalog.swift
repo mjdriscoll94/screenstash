@@ -13,7 +13,7 @@ struct SharedCategoryOption: Codable, Equatable, Identifiable, Sendable {
         key: "",
         name: "Unsorted",
         symbolName: "tray",
-        sortOrder: 0,
+        sortOrder: -1,
         isBuiltIn: false
     )
 
@@ -49,7 +49,7 @@ actor SharedCategoryCatalog: SharedCategoryCataloging {
     func loadCategories() throws -> [SharedCategoryOption] {
         let fileURL = try catalogFileURL(createDirectory: false)
         guard fileManager.fileExists(atPath: fileURL.path) else {
-            return SharedCategoryOption.builtInDefaults
+            return [SharedCategoryOption.unsorted] + SharedCategoryOption.builtInDefaults
         }
 
         let data = try Data(contentsOf: fileURL, options: .mappedIfSafe)
@@ -87,5 +87,19 @@ actor SharedCategoryCatalog: SharedCategoryCataloging {
             return lhs.name.localizedCaseInsensitiveCompare(rhs.name) == .orderedAscending
         }
         return lhs.sortOrder < rhs.sortOrder
+    }
+}
+
+/// Shares the user's import default with the share extension through the App Group.
+/// An empty key represents the system Unsorted collection.
+enum SharedDefaultCategoryPreference {
+    private static let key = "sharedDefaultCategory"
+
+    static func load() -> String {
+        UserDefaults(suiteName: ScreenStashAppGroup.identifier)?.string(forKey: key) ?? ""
+    }
+
+    static func save(_ categoryKey: String) {
+        UserDefaults(suiteName: ScreenStashAppGroup.identifier)?.set(categoryKey, forKey: key)
     }
 }

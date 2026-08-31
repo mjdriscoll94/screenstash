@@ -51,6 +51,42 @@ final class SharedImportCoordinatorTests: XCTestCase {
         XCTAssertEqual(coordinator.notice?.importedCount, 1)
         XCTAssertEqual(coordinator.notice?.failedCount, 0)
     }
+
+    func testPendingShareImportsAsUnsortedWhenCategoryKeyIsEmpty() async throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("ScreenStashUnsortedCoordinatorTests-\(UUID().uuidString)", isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+
+        let queue = SharedImportQueue(baseDirectory: directory)
+        try await queue.enqueue(
+            imageData: Data([1, 2, 3]),
+            categoryKey: "",
+            title: "Unsorted import",
+            id: UUID(),
+            createdAt: .now
+        )
+
+        let container = try ScreenStashContainer.make(inMemory: true)
+        let context = ModelContext(container)
+        context.insert(ScreenshotCategoryRecord(category: .other, sortOrder: 0))
+        try context.save()
+
+        let dependencies = AppDependencies(
+            imageProcessor: SharedImportImageProcessor(),
+            textRecognizer: SharedImportTextRecognizer(),
+            categorySuggester: CategorySuggestionService(),
+            notificationScheduler: NotificationService(),
+            exportService: ExportService(),
+            sharedImportQueue: queue,
+            sharedCategoryCatalog: SharedCategoryCatalog(baseDirectory: directory)
+        )
+
+        await SharedImportCoordinator().importPending(in: context, dependencies: dependencies)
+
+        let item = try XCTUnwrap(context.fetch(FetchDescriptor<ScreenshotItem>()).first)
+        XCTAssertNil(item.category)
+        XCTAssertEqual(item.status, .inbox)
+    }
 }
 
 private struct SharedImportImageProcessor: ImageProcessing {

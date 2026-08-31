@@ -10,8 +10,7 @@ struct CategoriesView: View {
 
     @Query private var items: [ScreenshotItem]
     @AppStorage(AppPreferenceKey.defaultCategory)
-    private var defaultCategoryKey = ScreenshotCategory.other.rawValue
-    @Binding var showResolvedCategory: Bool
+    private var defaultCategoryKey = ""
 
     @State private var viewModel = CategoriesViewModel()
     @State private var editorDraft: CategoryEditorDraft?
@@ -19,103 +18,123 @@ struct CategoriesView: View {
     @State private var errorMessage: String?
 
     var body: some View {
+        let unsortedItems = viewModel.unsortedItems(from: items)
         let resolvedItems = viewModel.resolvedItems(from: items)
+        let archivedItems = viewModel.archivedItems(from: items)
 
-        Group {
-            if categories.isEmpty && !showResolvedCategory {
-                ContentUnavailableView {
-                    Label("No Categories", systemImage: "tag.slash")
-                } description: {
-                    Text("Create a category with the plus button. Screenshots can still be kept Unsorted.")
+        List {
+            Section("Inbox") {
+                NavigationLink {
+                    UnsortedScreenshotsView()
+                } label: {
+                    CategorySummaryRow(
+                        name: "Unsorted",
+                        symbolName: "tray",
+                        count: unsortedItems.count,
+                        recentItems: Array(unsortedItems.prefix(3)),
+                        countDescription: "unsorted screenshots"
+                    )
+                    .accessibilityIdentifier("category.row.Unsorted")
                 }
-            } else {
-                List {
-                    if showResolvedCategory {
-                        Section("Status") {
-                            NavigationLink {
-                                ResolvedScreenshotsView()
+            }
+
+            Section("Status") {
+                NavigationLink {
+                    ResolvedScreenshotsView()
+                } label: {
+                    CategorySummaryRow(
+                        name: "Resolved",
+                        symbolName: ScreenshotStatus.resolved.symbolName,
+                        count: resolvedItems.count,
+                        recentItems: Array(resolvedItems.prefix(3)),
+                        countDescription: "resolved screenshots"
+                    )
+                    .accessibilityIdentifier("category.row.Resolved")
+                }
+
+                NavigationLink {
+                    ArchivedScreenshotsView()
+                } label: {
+                    CategorySummaryRow(
+                        name: "Archived",
+                        symbolName: ScreenshotStatus.archived.symbolName,
+                        count: archivedItems.count,
+                        recentItems: Array(archivedItems.prefix(3)),
+                        countDescription: "archived screenshots"
+                    )
+                    .accessibilityIdentifier("category.row.Archived")
+                }
+            }
+
+            if !categories.isEmpty {
+                Section {
+                    ForEach(categories) { category in
+                        let activeItems = viewModel.activeItems(for: category, from: items)
+
+                        if pendingDeletion === category {
+                            CategoryDeletionPrompt(
+                                categoryName: category.name,
+                                message: deletionMessage(for: category),
+                                onDelete: deletePendingCategory,
+                                onCancel: { pendingDeletion = nil }
+                            )
+                            .transition(.opacity.combined(with: .move(edge: .top)))
+                        }
+
+                        NavigationLink {
+                            CategoryScreenshotsView(
+                                categoryKey: category.key,
+                                categoryName: category.name,
+                                symbolName: category.symbolName
+                            )
+                        } label: {
+                            CategorySummaryRow(
+                                name: category.name,
+                                symbolName: category.symbolName,
+                                count: activeItems.count,
+                                recentItems: Array(activeItems.prefix(3)),
+                                countDescription: "active screenshots"
+                            )
+                            .accessibilityIdentifier("category.row.\(category.name)")
+                        }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+                                pendingDeletion = category
                             } label: {
-                                CategorySummaryRow(
-                                    name: "Resolved",
-                                    symbolName: ScreenshotStatus.resolved.symbolName,
-                                    count: resolvedItems.count,
-                                    recentItems: Array(resolvedItems.prefix(3)),
-                                    countDescription: "resolved screenshots"
-                                )
-                                .accessibilityIdentifier("category.row.Resolved")
+                                Label("Delete", systemImage: "trash")
+                            }
+                        }
+                        .swipeActions(edge: .leading, allowsFullSwipe: false) {
+                            Button {
+                                editorDraft = CategoryEditorDraft(category: category)
+                            } label: {
+                                Label("Edit", systemImage: "pencil")
+                            }
+                            .tint(.accentColor)
+                        }
+                        .contextMenu {
+                            Button {
+                                editorDraft = CategoryEditorDraft(category: category)
+                            } label: {
+                                Label("Edit Category", systemImage: "pencil")
+                            }
+
+                            Button(role: .destructive) {
+                                pendingDeletion = category
+                            } label: {
+                                Label("Delete Category", systemImage: "trash")
                             }
                         }
                     }
-
-                    if !categories.isEmpty {
-                        Section {
-                            ForEach(categories) { category in
-                                let activeItems = viewModel.activeItems(for: category, from: items)
-
-                                if pendingDeletion === category {
-                                    CategoryDeletionPrompt(
-                                        categoryName: category.name,
-                                        message: deletionMessage(for: category),
-                                        onDelete: deletePendingCategory,
-                                        onCancel: { pendingDeletion = nil }
-                                    )
-                                    .transition(.opacity.combined(with: .move(edge: .top)))
-                                }
-
-                                NavigationLink {
-                                    CategoryScreenshotsView(
-                                        categoryKey: category.key,
-                                        categoryName: category.name,
-                                        symbolName: category.symbolName
-                                    )
-                                } label: {
-                                    CategorySummaryRow(
-                                        name: category.name,
-                                        symbolName: category.symbolName,
-                                        count: activeItems.count,
-                                        recentItems: Array(activeItems.prefix(3)),
-                                        countDescription: "active screenshots"
-                                    )
-                                    .accessibilityIdentifier("category.row.\(category.name)")
-                                }
-                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                    Button(role: .destructive) {
-                                        pendingDeletion = category
-                                    } label: {
-                                        Label("Delete", systemImage: "trash")
-                                    }
-                                }
-                                .swipeActions(edge: .leading, allowsFullSwipe: false) {
-                                    Button {
-                                        editorDraft = CategoryEditorDraft(category: category)
-                                    } label: {
-                                        Label("Edit", systemImage: "pencil")
-                                    }
-                                    .tint(.accentColor)
-                                }
-                                .contextMenu {
-                                    Button {
-                                        editorDraft = CategoryEditorDraft(category: category)
-                                    } label: {
-                                        Label("Edit Category", systemImage: "pencil")
-                                    }
-
-                                    Button(role: .destructive) {
-                                        pendingDeletion = category
-                                    } label: {
-                                        Label("Delete Category", systemImage: "trash")
-                                    }
-                                }
-                            }
-                        } footer: {
-                            Text("Swipe right to edit. Swipe left to delete.")
-                        }
-                    }
+                } header: {
+                    Text("Categories")
+                } footer: {
+                    Text("Swipe right to edit. Swipe left to delete.")
                 }
-                .listStyle(.insetGrouped)
-                .scrollContentBackground(.hidden)
             }
         }
+        .listStyle(.insetGrouped)
+        .scrollContentBackground(.hidden)
         .frameFileScreenBackground()
         .navigationTitle("Categories")
         .toolbar {
@@ -187,7 +206,6 @@ struct CategoriesView: View {
         guard let category = pendingDeletion else { return }
         let categoryKey = category.key
         let isBuiltIn = category.isBuiltIn
-        let fallbackCategoryKey = categories.first { $0.key != categoryKey }?.key ?? ""
 
         do {
             try viewModel.deleteCategory(category, items: items, context: modelContext)
@@ -195,7 +213,8 @@ struct CategoriesView: View {
                 DeletedBuiltInCategoryStore.markDeleted(categoryKey)
             }
             if defaultCategoryKey == categoryKey {
-                defaultCategoryKey = fallbackCategoryKey
+                defaultCategoryKey = ""
+                SharedDefaultCategoryPreference.save("")
             }
             pendingDeletion = nil
             synchronizeSharedCatalog()
@@ -320,7 +339,7 @@ private struct CategorySummaryRow: View {
 
 #Preview {
     NavigationStack {
-        CategoriesView(showResolvedCategory: .constant(true))
+        CategoriesView()
     }
     .modelContainer(PreviewData.container)
 }
