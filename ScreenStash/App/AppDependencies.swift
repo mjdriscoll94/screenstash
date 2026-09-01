@@ -4,6 +4,7 @@ struct AppDependencies: Sendable {
     let imageProcessor: any ImageProcessing
     let textRecognizer: any TextRecognizing
     let categorySuggester: any CategorySuggesting
+    let titleSuggester: any TitleSuggesting
     let notificationScheduler: any NotificationScheduling
     let exportService: any DataExporting
     let sharedImportQueue: any SharedImportQueuing
@@ -13,6 +14,7 @@ struct AppDependencies: Sendable {
         imageProcessor: ImageProcessingService(),
         textRecognizer: TextRecognitionService(),
         categorySuggester: CategorySuggestionService(),
+        titleSuggester: TitleSuggestionService(),
         notificationScheduler: NotificationService(),
         exportService: ExportService(),
         sharedImportQueue: SharedImportQueue(),

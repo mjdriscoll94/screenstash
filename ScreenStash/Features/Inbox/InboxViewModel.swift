@@ -11,6 +11,7 @@ final class InboxViewModel {
     var selectedIDs: Set<UUID> = []
     var errorMessage: String?
     var showDeleteConfirmation = false
+    var showArchiveSelectedConfirmation = false
 
     func filteredItems(from items: [ScreenshotItem], now: Date = .now) -> [ScreenshotItem] {
         let unresolved = items.filter(\.isUnresolved)
@@ -76,6 +77,57 @@ final class InboxViewModel {
         save(context)
     }
 
+    func toggleFavorite(_ item: ScreenshotItem, context: ModelContext) {
+        item.isFavorite.toggle()
+        item.updatedAt = .now
+        save(context)
+    }
+
+    func resolve(
+        _ item: ScreenshotItem,
+        context: ModelContext,
+        notifications: any NotificationScheduling
+    ) async {
+        await notifications.cancelReminder(for: item.id)
+        item.markResolved()
+        save(context)
+    }
+
+    func archive(
+        _ item: ScreenshotItem,
+        context: ModelContext,
+        notifications: any NotificationScheduling
+    ) async {
+        await notifications.cancelReminder(for: item.id)
+        item.archive()
+        save(context)
+    }
+
+    func setReminder(
+        for item: ScreenshotItem,
+        at date: Date,
+        context: ModelContext,
+        notifications: any NotificationScheduling
+    ) async -> Bool {
+        do {
+            try await notifications.scheduleReminder(
+                for: item.id,
+                title: item.displayTitle,
+                at: date
+            )
+            item.reminderDate = date
+            item.updatedAt = .now
+            guard save(context) else {
+                await notifications.cancelReminder(for: item.id)
+                return false
+            }
+            return true
+        } catch {
+            errorMessage = error.localizedDescription
+            return false
+        }
+    }
+
     func resolveSelected(
         in items: [ScreenshotItem],
         context: ModelContext,
@@ -115,11 +167,14 @@ final class InboxViewModel {
         endSelecting()
     }
 
-    private func save(_ context: ModelContext) {
+    @discardableResult
+    private func save(_ context: ModelContext) -> Bool {
         do {
             try context.save()
+            return true
         } catch {
             errorMessage = error.localizedDescription
+            return false
         }
     }
 }

@@ -19,6 +19,23 @@ final class ScreenStashUITests: XCTestCase {
         XCTAssertTrue(app.navigationBars["Inbox"].waitForExistence(timeout: 5))
     }
 
+    func testQuickResolveFromInboxList() {
+        let app = launchApp()
+        let listButton = app.buttons["Use list view"]
+        XCTAssertTrue(listButton.waitForExistence(timeout: 5))
+        listButton.tap()
+
+        let screenshot = app.staticTexts["Weekend Pancakes"].firstMatch
+        XCTAssertTrue(screenshot.waitForExistence(timeout: 5))
+        screenshot.swipeLeft()
+
+        let resolveButton = app.buttons["Resolve"]
+        XCTAssertTrue(resolveButton.waitForExistence(timeout: 5))
+        resolveButton.tap()
+
+        XCTAssertFalse(screenshot.waitForExistence(timeout: 2))
+    }
+
     func testImportFlowEntryPoint() {
         let app = launchApp()
         XCTAssertTrue(app.buttons["Import screenshots"].waitForExistence(timeout: 5))

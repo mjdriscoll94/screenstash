@@ -89,6 +89,8 @@
 		EC098D3F5326FF12986417DB /* CategorySuggestionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A093C6B211A11D6672AED509 /* CategorySuggestionTests.swift */; };
 		EC5A38BE6E8AF87D900D4A2D /* NotificationIdentifierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AA4028843BA95BE709CE51D /* NotificationIdentifierTests.swift */; };
 		FA0BFF0F4BCFCF36E45840B1 /* TextRecognitionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9DBC5CB2CAFEEDB595D2EDF /* TextRecognitionServiceTests.swift */; };
+		F00D00000000000000000001 /* TitleSuggestionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00D00000000000000000003 /* TitleSuggestionService.swift */; };
+		F00D00000000000000000002 /* TitleSuggestionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00D00000000000000000004 /* TitleSuggestionServiceTests.swift */; };
 		FD432D713AA78B09C0EC9A32 /* PreviewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BE7F9B149E5C27DB1FBF844 /* PreviewData.swift */; };
 /* End PBXBuildFile section */
 
@@ -216,6 +218,8 @@
 		F4BCDC47A19FAF720ED8E8F4 /* ImportReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportReviewView.swift; sourceTree = "<group>"; };
 		F7C9C81A18AC182F87A73751 /* ScreenStashUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenStashUITests.swift; sourceTree = "<group>"; };
 		F9DBC5CB2CAFEEDB595D2EDF /* TextRecognitionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextRecognitionServiceTests.swift; sourceTree = "<group>"; };
+		F00D00000000000000000003 /* TitleSuggestionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TitleSuggestionService.swift; sourceTree = "<group>"; };
+		F00D00000000000000000004 /* TitleSuggestionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TitleSuggestionServiceTests.swift; sourceTree = "<group>"; };
 		FE14EECA781DC0F5A9409461 /* CleanupReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CleanupReviewView.swift; sourceTree = "<group>"; };
 		FF02CACEAA86E69729434327 /* AppPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPreferences.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -461,6 +465,7 @@
 				2747B0AB6E6D3AD3484A373A /* SharedImportQueueTests.swift */,
 				B43F0039BAC9973A7051325F /* SwiftDataPersistenceTests.swift */,
 				F9DBC5CB2CAFEEDB595D2EDF /* TextRecognitionServiceTests.swift */,
+				F00D00000000000000000004 /* TitleSuggestionServiceTests.swift */,
 			);
 			path = ScreenStashTests;
 			sourceTree = "<group>";
@@ -474,6 +479,7 @@
 				519CDAA6FC006969D31438B8 /* NotificationService.swift */,
 				D74B1C0CA758FA0E857BAC21 /* ServiceError.swift */,
 				13843D803C17F9781A9DE252 /* TextRecognitionService.swift */,
+				F00D00000000000000000003 /* TitleSuggestionService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -653,6 +659,7 @@
 				0FF54F77156CA4F66FBED7FB /* SharedImportQueueTests.swift in Sources */,
 				885383E70D824CFA330C4FE3 /* SwiftDataPersistenceTests.swift in Sources */,
 				FA0BFF0F4BCFCF36E45840B1 /* TextRecognitionServiceTests.swift in Sources */,
+				F00D00000000000000000002 /* TitleSuggestionServiceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -716,6 +723,7 @@
 				6292622AE56A9DA234EF6C11 /* SharedImportCoordinator.swift in Sources */,
 				16C9623506DC488850CD7BDB /* SharedImportQueue.swift in Sources */,
 				6278812F0920A1031E673095 /* TextRecognitionService.swift in Sources */,
+				F00D00000000000000000001 /* TitleSuggestionService.swift in Sources */,
 				CD19916BD1402739911055E4 /* ZoomableImageView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

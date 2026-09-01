@@ -131,6 +131,51 @@ final class ScreenshotStatusTests: XCTestCase {
         XCTAssertFalse(viewModel.isSelecting)
         XCTAssertTrue(viewModel.selectedIDs.isEmpty)
     }
+
+    func testQuickInboxReminderSchedulesAndPersistsDate() async throws {
+        let container = try ScreenStashContainer.make(inMemory: true)
+        let context = ModelContext(container)
+        let item = ScreenshotItem(imageData: Data([1]), title: "Book flights")
+        context.insert(item)
+        try context.save()
+
+        let scheduler = ReminderSchedulerSpy()
+        let viewModel = InboxViewModel()
+        let reminderDate = Date.now.addingTimeInterval(86_400)
+
+        let didSave = await viewModel.setReminder(
+            for: item,
+            at: reminderDate,
+            context: context,
+            notifications: scheduler
+        )
+
+        XCTAssertTrue(didSave)
+        XCTAssertEqual(item.reminderDate, reminderDate)
+        let scheduled = await scheduler.scheduledReminder()
+        XCTAssertEqual(scheduled?.itemID, item.id)
+        XCTAssertEqual(scheduled?.title, "Book flights")
+    }
+
+    func testQuickInboxResolveClearsReminderAndCancelsNotification() async throws {
+        let container = try ScreenStashContainer.make(inMemory: true)
+        let context = ModelContext(container)
+        let item = ScreenshotItem(
+            imageData: Data([1]),
+            reminderDate: Date.now.addingTimeInterval(86_400)
+        )
+        context.insert(item)
+        try context.save()
+
+        let scheduler = ReminderSchedulerSpy()
+        let viewModel = InboxViewModel()
+        await viewModel.resolve(item, context: context, notifications: scheduler)
+
+        XCTAssertEqual(item.status, .resolved)
+        XCTAssertNil(item.reminderDate)
+        let cancelledID = await scheduler.cancelledItemID()
+        XCTAssertEqual(cancelledID, item.id)
+    }
 }
 
 private actor ReminderSchedulerSpy: NotificationScheduling {

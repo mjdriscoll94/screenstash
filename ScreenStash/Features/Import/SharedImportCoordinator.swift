@@ -42,8 +42,11 @@ final class SharedImportCoordinator {
                     let category = pending.record.categoryKey.isEmpty
                         ? nil
                         : categoriesByKey[pending.record.categoryKey]
-                    let title = pending.record.title?
+                    let submittedTitle = pending.record.title?
                         .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                    let title = submittedTitle.isEmpty
+                        ? dependencies.titleSuggester.suggestTitle(for: recognizedText)
+                        : submittedTitle
                     let now = Date.now
                     let item = ScreenshotItem(
                         id: pending.record.id,

@@ -87,7 +87,7 @@ final class ImportViewModel {
                     imageData: processed.imageData,
                     thumbnailData: processed.thumbnailData,
                     recognizedText: recognizedText,
-                    title: "",
+                    title: dependencies.titleSuggester.suggestTitle(for: recognizedText),
                     category: category
                 )
 

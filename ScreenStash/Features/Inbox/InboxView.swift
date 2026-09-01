@@ -18,9 +18,18 @@ struct InboxView: View {
     @State private var viewModel = InboxViewModel()
     @State private var importViewModel = ImportViewModel()
     @State private var pickerItems: [PhotosPickerItem] = []
+    @State private var pendingArchiveItem: ScreenshotItem?
+    @State private var quickActionMessage: String?
 
     private var layout: ScreenshotLayoutMode {
         ScreenshotLayoutMode(rawValue: layoutRawValue) ?? .grid
+    }
+
+    private var inboxNavigationTitle: String {
+        if viewModel.isSelecting {
+            return "\(viewModel.selectedIDs.count) Selected"
+        }
+        return "Inbox"
     }
 
     var body: some View {
@@ -28,25 +37,9 @@ struct InboxView: View {
         @Bindable var importViewModel = importViewModel
         let displayedItems = viewModel.filteredItems(from: allItems)
 
-        Group {
-            if displayedItems.isEmpty {
-                if showsGettingStartedEmptyState {
-                    gettingStartedEmptyState
-                } else {
-                    EmptyStateView(
-                        title: emptyTitle,
-                        message: emptyMessage,
-                        systemImage: viewModel.filter.symbolName
-                    )
-                }
-            } else if layout == .grid {
-                grid(items: displayedItems)
-            } else {
-                list(items: displayedItems)
-            }
-        }
+        inboxContent(items: displayedItems)
         .frameFileScreenBackground()
-        .navigationTitle(viewModel.isSelecting ? "\(viewModel.selectedIDs.count) Selected" : "Inbox")
+        .navigationTitle(inboxNavigationTitle)
         .navigationBarTitleDisplayMode(.large)
         .accessibilityIdentifier("inbox.screen")
         .searchable(text: $viewModel.query, prompt: "Search this inbox")
@@ -82,6 +75,11 @@ struct InboxView: View {
         } message: {
             Text(viewModel.errorMessage ?? "Try again.")
         }
+        .alert("Reminder Set", isPresented: quickActionMessageBinding) {
+            Button("OK", role: .cancel) { quickActionMessage = nil }
+        } message: {
+            Text(quickActionMessage ?? "FrameFile will remind you tomorrow.")
+        }
         .confirmationDialog(
             "Delete selected screenshots?",
             isPresented: $viewModel.showDeleteConfirmation,
@@ -100,6 +98,44 @@ struct InboxView: View {
         } message: {
             Text("This removes the selected screenshots from FrameFile. The originals in Photos are not affected.")
         }
+        .confirmationDialog(
+            "Archive selected screenshots?",
+            isPresented: $viewModel.showArchiveSelectedConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Archive \(viewModel.selectedIDs.count) Screenshots") {
+                Task {
+                    await viewModel.archiveSelected(
+                        in: allItems,
+                        context: modelContext,
+                        notifications: dependencies.notificationScheduler
+                    )
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Their reminders will be removed and they will move to the Archived collection.")
+        }
+        .confirmationDialog(
+            "Archive this screenshot?",
+            isPresented: archiveItemConfirmationBinding,
+            titleVisibility: .visible
+        ) {
+            Button("Archive") {
+                guard let item = pendingArchiveItem else { return }
+                Task {
+                    await viewModel.archive(
+                        item,
+                        context: modelContext,
+                        notifications: dependencies.notificationScheduler
+                    )
+                    pendingArchiveItem = nil
+                }
+            }
+            Button("Cancel", role: .cancel) { pendingArchiveItem = nil }
+        } message: {
+            Text("Its reminder will be removed and it will move to the Archived collection.")
+        }
         .onChange(of: pickerItems) { _, newItems in
             guard !newItems.isEmpty else { return }
             Task {
@@ -111,6 +147,25 @@ struct InboxView: View {
                 )
                 pickerItems = []
             }
+        }
+    }
+
+    @ViewBuilder
+    private func inboxContent(items: [ScreenshotItem]) -> some View {
+        if items.isEmpty {
+            if showsGettingStartedEmptyState {
+                gettingStartedEmptyState
+            } else {
+                EmptyStateView(
+                    title: emptyTitle,
+                    message: emptyMessage,
+                    systemImage: viewModel.filter.symbolName
+                )
+            }
+        } else if layout == .grid {
+            grid(items: items)
+        } else {
+            list(items: items)
         }
     }
 
@@ -138,6 +193,11 @@ struct InboxView: View {
                         .frame(width: columnWidth, alignment: .topLeading)
                         .clipped()
                         .accessibilityIdentifier("screenshot.card.\(item.id.uuidString.lowercased())")
+                        .contextMenu {
+                            if !viewModel.isSelecting {
+                                quickActionMenu(for: item)
+                            }
+                        }
                     }
                 }
                 .padding(.horizontal, ScreenshotGridLayout.horizontalPadding)
@@ -148,23 +208,112 @@ struct InboxView: View {
 
     private func list(items: [ScreenshotItem]) -> some View {
         List(items) { item in
-            itemDestination(item) {
-                HStack {
-                    if viewModel.isSelecting {
-                        selectionIndicator(isSelected: viewModel.selectedIDs.contains(item.id))
-                    }
-                    ScreenshotRow(item: item)
-                }
-                .padding(11)
-                .frameFileCard()
-                .contentShape(Rectangle())
-            }
-            .listRowBackground(Color.clear)
-            .listRowSeparator(.hidden)
-            .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+            inboxListItem(item)
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+                .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
+    }
+
+    @ViewBuilder
+    private func inboxListItem(_ item: ScreenshotItem) -> some View {
+        if viewModel.isSelecting {
+            itemDestination(item) { listRowLabel(for: item) }
+        } else {
+            itemDestination(item) { listRowLabel(for: item) }
+                .swipeActions(edge: .leading, allowsFullSwipe: false) {
+                    Button {
+                        viewModel.toggleFavorite(item, context: modelContext)
+                    } label: {
+                        Label(
+                            item.isFavorite ? "Unfavorite" : "Favorite",
+                            systemImage: item.isFavorite ? "star.slash" : "star"
+                        )
+                    }
+                    .tint(.yellow)
+
+                    Button {
+                        setTomorrowReminder(for: item)
+                    } label: {
+                        Label("Remind Tomorrow", systemImage: "bell")
+                    }
+                    .tint(.blue)
+                }
+                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                    Button {
+                        Task {
+                            await viewModel.resolve(
+                                item,
+                                context: modelContext,
+                                notifications: dependencies.notificationScheduler
+                            )
+                        }
+                    } label: {
+                        Label("Resolve", systemImage: "checkmark.circle")
+                    }
+                    .tint(.green)
+
+                    Button {
+                        pendingArchiveItem = item
+                    } label: {
+                        Label("Archive", systemImage: "archivebox")
+                    }
+                    .tint(.orange)
+                }
+                .contextMenu { quickActionMenu(for: item) }
+        }
+    }
+
+    private func listRowLabel(for item: ScreenshotItem) -> some View {
+        HStack {
+            if viewModel.isSelecting {
+                selectionIndicator(isSelected: viewModel.selectedIDs.contains(item.id))
+            }
+            ScreenshotRow(item: item)
+        }
+        .padding(11)
+        .frameFileCard()
+        .contentShape(Rectangle())
+    }
+
+    @ViewBuilder
+    private func quickActionMenu(for item: ScreenshotItem) -> some View {
+        Button {
+            viewModel.toggleFavorite(item, context: modelContext)
+        } label: {
+            Label(
+                item.isFavorite ? "Remove from Favorites" : "Add to Favorites",
+                systemImage: item.isFavorite ? "star.slash" : "star"
+            )
+        }
+
+        Button {
+            setTomorrowReminder(for: item)
+        } label: {
+            Label("Remind Tomorrow", systemImage: "bell")
+        }
+
+        Button {
+            Task {
+                await viewModel.resolve(
+                    item,
+                    context: modelContext,
+                    notifications: dependencies.notificationScheduler
+                )
+            }
+        } label: {
+            Label("Resolve", systemImage: "checkmark.circle")
+        }
+
+        Divider()
+
+        Button {
+            pendingArchiveItem = item
+        } label: {
+            Label("Archive", systemImage: "archivebox")
+        }
     }
 
     @ViewBuilder
@@ -239,13 +388,7 @@ struct InboxView: View {
                     }
 
                     Button {
-                        Task {
-                            await viewModel.archiveSelected(
-                                in: allItems,
-                                context: modelContext,
-                                notifications: dependencies.notificationScheduler
-                            )
-                        }
+                        viewModel.showArchiveSelectedConfirmation = true
                     } label: {
                         Label("Archive", systemImage: "archivebox")
                     }
@@ -388,6 +531,42 @@ struct InboxView: View {
             get: { viewModel.errorMessage != nil },
             set: { if !$0 { viewModel.errorMessage = nil } }
         )
+    }
+
+    private var quickActionMessageBinding: Binding<Bool> {
+        Binding(
+            get: { quickActionMessage != nil },
+            set: { if !$0 { quickActionMessage = nil } }
+        )
+    }
+
+    private var archiveItemConfirmationBinding: Binding<Bool> {
+        Binding(
+            get: { pendingArchiveItem != nil },
+            set: { if !$0 { pendingArchiveItem = nil } }
+        )
+    }
+
+    private func setTomorrowReminder(for item: ScreenshotItem) {
+        Task {
+            let date = Calendar.current.date(
+                bySettingHour: 9,
+                minute: 0,
+                second: 0,
+                of: .now
+            ).flatMap {
+                Calendar.current.date(byAdding: .day, value: 1, to: $0)
+            } ?? .now.addingTimeInterval(86_400)
+
+            if await viewModel.setReminder(
+                for: item,
+                at: date,
+                context: modelContext,
+                notifications: dependencies.notificationScheduler
+            ) {
+                quickActionMessage = "\(item.displayTitle) is scheduled for tomorrow at 9:00 AM."
+            }
+        }
     }
 }
 
