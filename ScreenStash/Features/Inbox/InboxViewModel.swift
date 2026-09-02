@@ -103,6 +103,16 @@ final class InboxViewModel {
         save(context)
     }
 
+    func delete(
+        _ item: ScreenshotItem,
+        context: ModelContext,
+        notifications: any NotificationScheduling
+    ) async {
+        await notifications.cancelReminder(for: item.id)
+        context.delete(item)
+        save(context)
+    }
+
     func setReminder(
         for item: ScreenshotItem,
         at date: Date,

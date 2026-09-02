@@ -3,6 +3,11 @@ import SwiftData
 import SwiftUI
 
 struct InboxView: View {
+    private enum ItemConfirmationAction {
+        case archive(ScreenshotItem)
+        case delete(ScreenshotItem)
+    }
+
     @Environment(\.modelContext) private var modelContext
     @Environment(\.appDependencies) private var dependencies
 
@@ -18,7 +23,7 @@ struct InboxView: View {
     @State private var viewModel = InboxViewModel()
     @State private var importViewModel = ImportViewModel()
     @State private var pickerItems: [PhotosPickerItem] = []
-    @State private var pendingArchiveItem: ScreenshotItem?
+    @State private var pendingItemAction: ItemConfirmationAction?
     @State private var quickActionMessage: String?
 
     private var layout: ScreenshotLayoutMode {
@@ -117,24 +122,16 @@ struct InboxView: View {
             Text("Their reminders will be removed and they will move to the Archived collection.")
         }
         .confirmationDialog(
-            "Archive this screenshot?",
-            isPresented: archiveItemConfirmationBinding,
+            itemConfirmationTitle,
+            isPresented: itemConfirmationBinding,
             titleVisibility: .visible
         ) {
-            Button("Archive") {
-                guard let item = pendingArchiveItem else { return }
-                Task {
-                    await viewModel.archive(
-                        item,
-                        context: modelContext,
-                        notifications: dependencies.notificationScheduler
-                    )
-                    pendingArchiveItem = nil
-                }
+            Button(itemConfirmationButtonTitle, role: itemConfirmationButtonRole) {
+                performPendingItemAction()
             }
-            Button("Cancel", role: .cancel) { pendingArchiveItem = nil }
+            Button("Cancel", role: .cancel) { pendingItemAction = nil }
         } message: {
-            Text("Its reminder will be removed and it will move to the Archived collection.")
+            Text(itemConfirmationMessage)
         }
         .onChange(of: pickerItems) { _, newItems in
             guard !newItems.isEmpty else { return }
@@ -209,9 +206,10 @@ struct InboxView: View {
     private func list(items: [ScreenshotItem]) -> some View {
         List(items) { item in
             inboxListItem(item)
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
-                .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                .listRowBackground(ScreenStashTheme.cardBackground)
+                .listRowSeparator(.visible)
+                .listRowSeparatorTint(ScreenStashTheme.cardStroke)
+                .listRowInsets(EdgeInsets())
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
@@ -256,11 +254,18 @@ struct InboxView: View {
                     .tint(.green)
 
                     Button {
-                        pendingArchiveItem = item
+                        pendingItemAction = .archive(item)
                     } label: {
                         Label("Archive", systemImage: "archivebox")
                     }
                     .tint(.orange)
+
+                    Button(role: .destructive) {
+                        pendingItemAction = .delete(item)
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
+                    .tint(.red)
                 }
                 .contextMenu { quickActionMenu(for: item) }
         }
@@ -273,8 +278,8 @@ struct InboxView: View {
             }
             ScreenshotRow(item: item)
         }
-        .padding(11)
-        .frameFileCard()
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
         .contentShape(Rectangle())
     }
 
@@ -310,9 +315,15 @@ struct InboxView: View {
         Divider()
 
         Button {
-            pendingArchiveItem = item
+            pendingItemAction = .archive(item)
         } label: {
             Label("Archive", systemImage: "archivebox")
+        }
+
+        Button(role: .destructive) {
+            pendingItemAction = .delete(item)
+        } label: {
+            Label("Delete", systemImage: "trash")
         }
     }
 
@@ -540,11 +551,67 @@ struct InboxView: View {
         )
     }
 
-    private var archiveItemConfirmationBinding: Binding<Bool> {
+    private var itemConfirmationBinding: Binding<Bool> {
         Binding(
-            get: { pendingArchiveItem != nil },
-            set: { if !$0 { pendingArchiveItem = nil } }
+            get: { pendingItemAction != nil },
+            set: { if !$0 { pendingItemAction = nil } }
         )
+    }
+
+    private var itemConfirmationTitle: String {
+        switch pendingItemAction {
+        case .archive: "Archive this screenshot?"
+        case .delete: "Delete this screenshot?"
+        case nil: "Confirm Action"
+        }
+    }
+
+    private var itemConfirmationButtonTitle: String {
+        switch pendingItemAction {
+        case .archive: "Archive"
+        case .delete: "Delete"
+        case nil: "Continue"
+        }
+    }
+
+    private var itemConfirmationButtonRole: ButtonRole? {
+        switch pendingItemAction {
+        case .delete: .destructive
+        case .archive, nil: nil
+        }
+    }
+
+    private var itemConfirmationMessage: String {
+        switch pendingItemAction {
+        case .archive:
+            "Its reminder will be removed and it will move to the Archived collection."
+        case .delete:
+            "This removes the FrameFile copy. The original in Photos is not affected."
+        case nil:
+            ""
+        }
+    }
+
+    private func performPendingItemAction() {
+        guard let action = pendingItemAction else { return }
+        pendingItemAction = nil
+
+        Task {
+            switch action {
+            case let .archive(item):
+                await viewModel.archive(
+                    item,
+                    context: modelContext,
+                    notifications: dependencies.notificationScheduler
+                )
+            case let .delete(item):
+                await viewModel.delete(
+                    item,
+                    context: modelContext,
+                    notifications: dependencies.notificationScheduler
+                )
+            }
+        }
     }
 
     private func setTomorrowReminder(for item: ScreenshotItem) {

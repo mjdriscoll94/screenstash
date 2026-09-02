@@ -176,6 +176,26 @@ final class ScreenshotStatusTests: XCTestCase {
         let cancelledID = await scheduler.cancelledItemID()
         XCTAssertEqual(cancelledID, item.id)
     }
+
+    func testQuickInboxDeleteRemovesItemAndCancelsNotification() async throws {
+        let container = try ScreenStashContainer.make(inMemory: true)
+        let context = ModelContext(container)
+        let item = ScreenshotItem(
+            imageData: Data([1]),
+            reminderDate: Date.now.addingTimeInterval(86_400)
+        )
+        context.insert(item)
+        try context.save()
+
+        let scheduler = ReminderSchedulerSpy()
+        let viewModel = InboxViewModel()
+        await viewModel.delete(item, context: context, notifications: scheduler)
+
+        let remainingItems = try context.fetch(FetchDescriptor<ScreenshotItem>())
+        XCTAssertTrue(remainingItems.isEmpty)
+        let cancelledID = await scheduler.cancelledItemID()
+        XCTAssertEqual(cancelledID, item.id)
+    }
 }
 
 private actor ReminderSchedulerSpy: NotificationScheduling {

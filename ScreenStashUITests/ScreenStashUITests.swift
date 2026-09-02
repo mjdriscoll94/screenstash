@@ -21,9 +21,7 @@ final class ScreenStashUITests: XCTestCase {
 
     func testQuickResolveFromInboxList() {
         let app = launchApp()
-        let listButton = app.buttons["Use list view"]
-        XCTAssertTrue(listButton.waitForExistence(timeout: 5))
-        listButton.tap()
+        useListView(in: app)
 
         let screenshot = app.staticTexts["Weekend Pancakes"].firstMatch
         XCTAssertTrue(screenshot.waitForExistence(timeout: 5))
@@ -34,6 +32,35 @@ final class ScreenStashUITests: XCTestCase {
         resolveButton.tap()
 
         XCTAssertFalse(screenshot.waitForExistence(timeout: 2))
+    }
+
+    func testQuickDeleteFromInboxListRequiresConfirmation() {
+        let app = launchApp()
+        useListView(in: app)
+
+        let screenshot = app.staticTexts["Ergonomic Desk Lamp"].firstMatch
+        XCTAssertTrue(screenshot.waitForExistence(timeout: 5))
+        screenshot.swipeLeft()
+
+        let deleteButton = app.buttons["Delete"]
+        XCTAssertTrue(deleteButton.waitForExistence(timeout: 5))
+        deleteButton.tap()
+
+        XCTAssertTrue(app.staticTexts["Delete this screenshot?"].waitForExistence(timeout: 5))
+        let confirmation = app.sheets.buttons["Delete"].firstMatch
+        XCTAssertTrue(confirmation.exists)
+        confirmation.tap()
+
+        XCTAssertFalse(screenshot.waitForExistence(timeout: 2))
+    }
+
+    private func useListView(in app: XCUIApplication) {
+        let switchToListButton = app.buttons["Use list view"]
+        if switchToListButton.waitForExistence(timeout: 2) {
+            switchToListButton.tap()
+        } else {
+            XCTAssertTrue(app.buttons["Use grid view"].waitForExistence(timeout: 5))
+        }
     }
 
     func testImportFlowEntryPoint() {

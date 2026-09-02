@@ -191,13 +191,14 @@ private struct ScreenshotCollectionView: View {
                     }
                     ScreenshotRow(item: item)
                 }
-                .padding(11)
-                .frameFileCard()
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
                 .contentShape(Rectangle())
             }
-            .listRowBackground(Color.clear)
-            .listRowSeparator(.hidden)
-            .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+            .listRowBackground(ScreenStashTheme.cardBackground)
+            .listRowSeparator(.visible)
+            .listRowSeparatorTint(ScreenStashTheme.cardStroke)
+            .listRowInsets(EdgeInsets())
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
