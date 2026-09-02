@@ -121,18 +121,6 @@ struct InboxView: View {
         } message: {
             Text("Their reminders will be removed and they will move to the Archived collection.")
         }
-        .confirmationDialog(
-            itemConfirmationTitle,
-            isPresented: itemConfirmationBinding,
-            titleVisibility: .visible
-        ) {
-            Button(itemConfirmationButtonTitle, role: itemConfirmationButtonRole) {
-                performPendingItemAction()
-            }
-            Button("Cancel", role: .cancel) { pendingItemAction = nil }
-        } message: {
-            Text(itemConfirmationMessage)
-        }
         .onChange(of: pickerItems) { _, newItems in
             guard !newItems.isEmpty else { return }
             Task {
@@ -176,23 +164,25 @@ struct InboxView: View {
                     spacing: ScreenshotGridLayout.spacing
                 ) {
                     ForEach(items) { item in
-                        itemDestination(item) {
-                            ScreenshotCard(item: item)
-                                .frame(width: columnWidth, alignment: .topLeading)
-                                .clipped()
-                                .overlay(alignment: .topTrailing) {
-                                    if viewModel.isSelecting {
-                                        selectionIndicator(isSelected: viewModel.selectedIDs.contains(item.id))
-                                            .padding(8)
+                        itemWithConfirmation(item) {
+                            itemDestination(item) {
+                                ScreenshotCard(item: item)
+                                    .frame(width: columnWidth, alignment: .topLeading)
+                                    .clipped()
+                                    .overlay(alignment: .topTrailing) {
+                                        if viewModel.isSelecting {
+                                            selectionIndicator(isSelected: viewModel.selectedIDs.contains(item.id))
+                                                .padding(8)
+                                        }
                                     }
+                            }
+                            .frame(width: columnWidth, alignment: .topLeading)
+                            .clipped()
+                            .accessibilityIdentifier("screenshot.card.\(item.id.uuidString.lowercased())")
+                            .contextMenu {
+                                if !viewModel.isSelecting {
+                                    quickActionMenu(for: item)
                                 }
-                        }
-                        .frame(width: columnWidth, alignment: .topLeading)
-                        .clipped()
-                        .accessibilityIdentifier("screenshot.card.\(item.id.uuidString.lowercased())")
-                        .contextMenu {
-                            if !viewModel.isSelecting {
-                                quickActionMenu(for: item)
                             }
                         }
                     }
@@ -220,54 +210,56 @@ struct InboxView: View {
         if viewModel.isSelecting {
             itemDestination(item) { listRowLabel(for: item) }
         } else {
-            itemDestination(item) { listRowLabel(for: item) }
-                .swipeActions(edge: .leading, allowsFullSwipe: false) {
-                    Button {
-                        viewModel.toggleFavorite(item, context: modelContext)
-                    } label: {
-                        Label(
-                            item.isFavorite ? "Unfavorite" : "Favorite",
-                            systemImage: item.isFavorite ? "star.slash" : "star"
-                        )
-                    }
-                    .tint(.yellow)
-
-                    Button {
-                        setTomorrowReminder(for: item)
-                    } label: {
-                        Label("Remind Tomorrow", systemImage: "bell")
-                    }
-                    .tint(.blue)
-                }
-                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                    Button {
-                        Task {
-                            await viewModel.resolve(
-                                item,
-                                context: modelContext,
-                                notifications: dependencies.notificationScheduler
+            itemWithConfirmation(item) {
+                itemDestination(item) { listRowLabel(for: item) }
+                    .swipeActions(edge: .leading, allowsFullSwipe: false) {
+                        Button {
+                            viewModel.toggleFavorite(item, context: modelContext)
+                        } label: {
+                            Label(
+                                item.isFavorite ? "Unfavorite" : "Favorite",
+                                systemImage: item.isFavorite ? "star.slash" : "star"
                             )
                         }
-                    } label: {
-                        Label("Resolve", systemImage: "checkmark.circle")
-                    }
-                    .tint(.green)
+                        .tint(.yellow)
 
-                    Button {
-                        pendingItemAction = .archive(item)
-                    } label: {
-                        Label("Archive", systemImage: "archivebox")
+                        Button {
+                            setTomorrowReminder(for: item)
+                        } label: {
+                            Label("Remind Tomorrow", systemImage: "bell")
+                        }
+                        .tint(.blue)
                     }
-                    .tint(.orange)
+                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                        Button {
+                            Task {
+                                await viewModel.resolve(
+                                    item,
+                                    context: modelContext,
+                                    notifications: dependencies.notificationScheduler
+                                )
+                            }
+                        } label: {
+                            Label("Resolve", systemImage: "checkmark.circle")
+                        }
+                        .tint(.green)
 
-                    Button(role: .destructive) {
-                        pendingItemAction = .delete(item)
-                    } label: {
-                        Label("Delete", systemImage: "trash")
+                        Button {
+                            pendingItemAction = .archive(item)
+                        } label: {
+                            Label("Archive", systemImage: "archivebox")
+                        }
+                        .tint(.orange)
+
+                        Button(role: .destructive) {
+                            pendingItemAction = .delete(item)
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
+                        .tint(.red)
                     }
-                    .tint(.red)
-                }
-                .contextMenu { quickActionMenu(for: item) }
+                    .contextMenu { quickActionMenu(for: item) }
+            }
         }
     }
 
@@ -349,6 +341,28 @@ struct InboxView: View {
             }
             .buttonStyle(.plain)
         }
+    }
+
+    private func itemWithConfirmation<Content: View>(
+        _ item: ScreenshotItem,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        content()
+            .popover(
+                isPresented: itemConfirmationBinding(for: item),
+                attachmentAnchor: .rect(.bounds),
+                arrowEdge: .bottom
+            ) {
+                ScreenshotActionConfirmationPopover(
+                    title: itemConfirmationTitle,
+                    message: itemConfirmationMessage,
+                    actionTitle: itemConfirmationButtonTitle,
+                    actionRole: itemConfirmationButtonRole,
+                    onConfirm: performPendingItemAction,
+                    onCancel: { pendingItemAction = nil }
+                )
+                .presentationCompactAdaptation(.popover)
+            }
     }
 
     private func selectionIndicator(isSelected: Bool) -> some View {
@@ -551,11 +565,24 @@ struct InboxView: View {
         )
     }
 
-    private var itemConfirmationBinding: Binding<Bool> {
+    private func itemConfirmationBinding(for item: ScreenshotItem) -> Binding<Bool> {
         Binding(
-            get: { pendingItemAction != nil },
-            set: { if !$0 { pendingItemAction = nil } }
+            get: { pendingActionMatches(item) },
+            set: { newValue in
+                if !newValue && pendingActionMatches(item) {
+                    pendingItemAction = nil
+                }
+            }
         )
+    }
+
+    private func pendingActionMatches(_ item: ScreenshotItem) -> Bool {
+        switch pendingItemAction {
+        case let .archive(pendingItem), let .delete(pendingItem):
+            pendingItem.id == item.id
+        case nil:
+            false
+        }
     }
 
     private var itemConfirmationTitle: String {
@@ -634,6 +661,41 @@ struct InboxView: View {
                 quickActionMessage = "\(item.displayTitle) is scheduled for tomorrow at 9:00 AM."
             }
         }
+    }
+}
+
+private struct ScreenshotActionConfirmationPopover: View {
+    let title: String
+    let message: String
+    let actionTitle: String
+    let actionRole: ButtonRole?
+    let onConfirm: () -> Void
+    let onCancel: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text(title)
+                .font(.headline)
+
+            Text(message)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+
+            HStack {
+                Button("Cancel", role: .cancel, action: onCancel)
+                    .buttonStyle(.bordered)
+
+                Spacer()
+
+                Button(actionTitle, role: actionRole, action: onConfirm)
+                    .buttonStyle(.borderedProminent)
+                    .tint(actionRole == .destructive ? .red : ScreenStashTheme.brandBlue)
+            }
+        }
+        .padding(18)
+        .frame(minWidth: 270, idealWidth: 300, maxWidth: 320, alignment: .leading)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("screenshot.action.confirmation")
     }
 }
 

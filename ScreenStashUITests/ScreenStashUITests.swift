@@ -47,8 +47,8 @@ final class ScreenStashUITests: XCTestCase {
         deleteButton.tap()
 
         XCTAssertTrue(app.staticTexts["Delete this screenshot?"].waitForExistence(timeout: 5))
-        let confirmation = app.sheets.buttons["Delete"].firstMatch
-        XCTAssertTrue(confirmation.exists)
+        let confirmation = app.buttons["Delete"].firstMatch
+        XCTAssertTrue(confirmation.waitForExistence(timeout: 5))
         confirmation.tap()
 
         XCTAssertFalse(screenshot.waitForExistence(timeout: 2))
